@@ -1,0 +1,80 @@
+@function get-color($map, $prop-descent) {
+  $return: $map;
+  @for $i from 1 through length($prop-descent) {
+    $prop: nth($prop-descent, $i);
+    $return: map-get($return, $prop);
+  }
+  @return $return;
+}
+$navbar-container-max-width: 80%;
+$navbar-gradient-color-from: rgb(124, 0, 124);
+$navbar-gradient-color-to: rgb(0, 143, 0);
+$navbar-gradient-midpoint-pctg: 82%;
+$navbar-gradient-transition-buffer: 1%;
+$navbar-padding: 10px;
+$navbar-brand-image: "https://static.remove.bg/remove-bg-web/588fbfdd2324490a4329d4ad22d1bd436e1d384a/assets/start-1abfb4fe2980eabfbbaaa4365a0692539f7cd2725f324f904565a9a744f8e214.jpg";
+$navbar-drop-shadow: drop-shadow(0px 0px 4px black);
+$nav-item-border-bottom-on-hover: 2px black;
+$colors: (
+  csh: (
+    pdp11: (a: #B0197E, b: #E11C52)
+  ),
+);
+
+.navbar { 
+  z-index: 10;
+  background-repeat: no-repeat; 
+  background-color: get-color($colors, "csh" "pdp11" "a");
+  //background-image: linear-gradient(to right, $navbar-gradient-color-from 0% $navbar-gradient-midpoint-pctg - $navbar-gradient-transition-buffer, $navbar-gradient-color-to $navbar-gradient-midpoint-pctg 100%);
+  background-size: 100% 100%;
+  filter: $navbar-drop-shadow;
+  padding: $navbar-padding;
+  position: relative;
+}
+
+.navbar > .container-fluid {
+  max-width: $navbar-container-max-width;
+}
+
+// Classname/ID duplication required for overriding specificity
+.navbar-brand#brand {
+  background-image: none; //url($navbar-brand-image);
+  background-position: center;
+  padding: 14px;
+  //@include stroke(#000, 2px);
+}
+
+.navbar-brand>#csh-logo {
+  width: 3rem;
+  height: auto;
+  margin-right: 1rem;
+  // Convert to white by inverting color
+  -webkit-filter: invert(100%); /* safari 6.0 - 9.0 */
+          filter: invert(100%);
+}
+
+a {
+  cursor: pointer;
+}
+
+.nav-item > a:hover {
+  border-bottom: $nav-item-border-bottom-on-hover;
+  font-weight: bold;
+  
+}
+
+.dropdown.nav-item > a:hover{
+  border-bottom: 0;
+}
+
+@media (max-width: 370px) {
+  .navbar-toggler, .navbar-brand#brand {
+    margin: auto;
+  }
+}
+
+@media (max-width: 500px) {
+  .navbar {
+    padding: 0;
+  }
+}

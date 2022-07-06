@@ -1,0 +1,99 @@
+@use "sass:math";
+
+$csh-color-a: #b0197e;
+
+$submissions-container-width: 80vw;
+
+#submission-gallery {
+  padding: 1rem;
+  max-width: 1600px;
+  text-align: center;
+}
+
+#submission-gallery h1 {
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+#submissions-container {
+  display: inline-block;
+  position: relative;
+  margin: auto;
+  text-align: center;
+}
+
+#submission-gallery-header {
+  width: 72vw;
+  margin: auto;
+}
+
+.submission-gallery-dropdown-container.container {
+  position: relative;
+  width: auto;
+  text-align: center;
+  margin: 0;
+}
+
+.submission-gallery-dropdown {
+  position: relative;
+  z-index: 10;
+  display: inline-block;
+  margin-left: 1rem;
+}
+
+.submission-gallery-dropdown > button {
+  position: relative;
+  width: 100%;
+  background-color: transparent;
+  color: black;
+  border: none;
+}
+.submission-gallery-dropdown > button:hover {
+  background-color: lighten($csh-color-a, 5%);
+}
+.submission-gallery-dropdown.show > button {
+  background-color: darken($csh-color-a, 10%) !important;
+}
+.submission-card .card-text {
+  margin-bottom: 0.5rem;
+
+}
+.submission-card .doot-difference-text {
+  font-size: 1.4rem;
+  margin-right: 1rem;
+}
+
+ul.paginate-container {
+  position: relative;
+  margin: auto;
+  padding: 10px;
+  height: auto;
+}
+
+ul.paginate-container li {
+  all: unset;
+  display: inline-block;
+  margin: auto 5px 10px 5px;
+  border-radius: 4px;
+  background-color: white;
+  border: 1px solid rgb(66, 66, 66);
+  transition: .1s;
+}
+
+ul.paginate-container li, ul.paginate-container li > a {
+  text-decoration: none;
+  color: rgb(66, 66, 66);
+  padding: 3px 7px;
+}
+ul.paginate-container li:hover > a {
+  color: white;
+}
+
+ul.paginate-container li:hover, ul.paginate-container li.selected {
+  background-color: $csh-color-a;
+  color: white;
+}
+
+@media screen and (min-width: 1300px) {
+
+}

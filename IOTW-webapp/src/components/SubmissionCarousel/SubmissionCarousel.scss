@@ -1,0 +1,118 @@
+$csh-color-a: #b0197e;
+
+$carousel-margin-top: 10px;
+$carousel-background-color: lighten($csh-color-a, 20%);
+$carousel-border: 2px solid $csh-color-a;
+$carousel-border-radius: 5px;
+$carousel-button-active-color: white;
+$carousel-slide-border: 1px solid black;
+$slick-dots-background-color: darken($carousel-background-color, 20%);
+$slick-dots-border: $carousel-slide-border;
+$slick-dots-border-radius: $carousel-border-radius;
+
+$submission-arrow-offset: -60px;
+
+.slick-slider {
+  margin-top: $carousel-margin-top;
+  border: $carousel-border;
+  border-radius: $carousel-border-radius;
+  background-color: $carousel-background-color;
+  padding: 10px;
+}
+
+.slick-dots {
+  position: relative;
+  padding: 12px;
+  top: 0;
+  left: 0;
+  background-color: $slick-dots-background-color;
+  border: $slick-dots-border;
+  border-radius: $slick-dots-border-radius;
+}
+
+.slick-dots li button:before {
+  font-size: 10px;
+}
+
+.submission-arrow {
+  position: absolute;
+  top: 45%;
+  color: lighten($csh-color-a, 25%);
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 100%;
+  font-size: 2.4rem;
+  font-family: monospace, monospace;
+  font-weight: bold;
+  line-height: 1.44;
+  background-color: transparent;
+  transition: .1s
+}
+
+.submission-arrow:hover {
+  color: $csh-color-a;
+}
+
+.submission-arrow#previous {
+  left: $submission-arrow-offset;
+}
+
+.submission-arrow#next {
+  right: $submission-arrow-offset;
+}
+
+.submission-arrow#previous span {
+  position: absolute;
+  top: 0;
+  left: 27%;
+}
+
+.submission-arrow#next span {
+  position: absolute;
+  top: 0;
+  left: 33%;
+}
+
+.slick-active > button:before {
+  color: $carousel-button-active-color !important;
+  opacity: 1 !important;
+}
+
+.slide {
+  position: relative;
+  background-color: black;
+  border: $carousel-slide-border;
+  border-radius: $carousel-border-radius;
+  height: 70vh;
+}
+
+.slide > img {
+  cursor: pointer;
+  display: block;
+  margin: auto;
+  height: 100%;
+  transition: 0.3s;
+}
+
+.slide > .doot-difference-display {
+  z-index: 10;
+  width: auto;
+  text-align: center;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 2px;
+  position: absolute;
+  font-size: 2rem;
+  padding-right: 5px;
+}
+
+.slide > .doot-difference-display > .doot-difference-text {
+  margin: 6px;
+}
+
+.bidi-arrow {
+  all: unset;
+  filter: drop-shadow(0px 0px 0px black);
+}

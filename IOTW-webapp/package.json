@@ -1,0 +1,57 @@
+{
+  "name": "iotw-webapp",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@axa-fr/react-oidc": "^5.7.8",
+    "@types/node": "^16.11.36",
+    "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.0.5",
+    "bootstrap": "^5.1.3",
+    "copyfiles": "^2.4.1",
+    "cross-fetch": "^3.1.5",
+    "easylogger-ts": "^1.1.3",
+    "oidc-client-ts": "^2.0.4",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-paginate": "^8.1.3",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "react-slick": "^0.29.0",
+    "reactstrap": "^9.0.3",
+    "sass": "^1.52.3",
+    "slick-carousel": "^1.8.1",
+    "source-map-explorer": "^2.5.2",
+    "typescript": "^4.7.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "analyze": "source-map-explorer 'build/static/js/*.js' --only-mapped",
+    "prettify": "prettier --write '**/*.ts' '**/*.tsx'"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/bootstrap": "^5.1.12",
+    "@types/react-slick": "^0.23.8"
+  }
+}
