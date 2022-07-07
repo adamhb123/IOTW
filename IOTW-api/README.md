@@ -1,7 +1,2 @@
-# API for CSH IOTW site
-
-Duplicate the '.envtemplate' file and rename it to '.env', then fill in the necessary env-vars.
-```
-host="<db host>"
-user="<mysql username>"
-password="<mysql password>"
+# IOTW API
+Duplicate the '.env.template' file and rename it to '.env', then fill in the necessary env-vars.

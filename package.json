@@ -1,0 +1,20 @@
+{
+  "name": "iotw",
+  "version": "1.0.0",
+  "description": "IOTW super-monolith",
+  "main": "start.sh",
+  "scripts": {
+    "start": "./start.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adamhb123/IOTW.git"
+  },
+  "author": "Adam Brewer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adamhb123/IOTW/issues"
+  },
+  "homepage": "https://github.com/adamhb123/IOTW#readme"
+}
