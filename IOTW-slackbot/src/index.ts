@@ -38,7 +38,7 @@ export async function getBotChannels() {
   /*l
    * Gets a list of channels of which the bot is a member
    */
-  let list = await app.client.conversations.list();
+  const list = await app.client.conversations.list();
   return list.channels?.filter((_channel: any) => _channel.is_member);
 }
 
@@ -46,7 +46,7 @@ export async function sendMessage(text: string, channels?: string[]) {
   /*
    * Sends a one-shot message to every channel specified in the 'channels' array.
    */
-  let botChannels = await getBotChannels();
+  const botChannels = await getBotChannels();
   if (!channels) channels = botChannels?.map((_channel: any) => _channel.id);
   if (!channels) {
     const errMsg =
@@ -54,7 +54,7 @@ export async function sendMessage(text: string, channels?: string[]) {
     console.error(errMsg);
     return new Error(errMsg);
   }
-  for (let channel of channels) {
+  for (const channel of channels) {
     // Grab ID if given channel name
     app.client.chat.postMessage({
       channel: channel,
@@ -89,7 +89,7 @@ function addTrigger(
           return; // Whitespace enforcement
         if (triggerOptions.enforceCaseSensitivity) {
           // Case sensitivity enforcement
-          let matches = messageText.match(new RegExp(triggerPhrase, "gi"));
+          const matches = messageText.match(new RegExp(triggerPhrase, "gi"));
           if (!matches || !(<Array<string>>matches).includes(triggerPhrase))
             return;
         }
@@ -145,13 +145,13 @@ addTrigger(
 // Get COMPETITION_DTL days from now
 let competitionEndDate = new Date(Date.now() + 8.64e7 * COMPETITION_DTL);
 // Floor to start of day (hour 0)
-competitionEndDate.setHours(0, 0, 0 ,0);
+competitionEndDate.setHours(0, 0, 0, 0);
 const competitionEndHandler = () => {
-  sendMessage(`COMPETITION OVER! Here are this week's results:`);
+  sendMessage("COMPETITION OVER! Here are this week's results:");
   // Generate result image and send file
   // Reset timer
   competitionEndDate = new Date(Date.now() + 8.64e7 * COMPETITION_DTL);
-competitionEndDate.setHours(0, 0, 0, 0);
+  competitionEndDate.setHours(0, 0, 0, 0);
   setTimeout(competitionEndHandler, competitionEndDate.getMilliseconds());
 };
 // Runs on competition end

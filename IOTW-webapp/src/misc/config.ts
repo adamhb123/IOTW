@@ -1,8 +1,10 @@
-import Logger from "easylogger-ts";
-import { stringToPrimitive, PrimitiveTypeString } from "./utility";
+import {
+  stringToPrimitive,
+  PrimitiveTypeString,
+} from "../../../IOTW-shared/src/utility";
 
 const _parseEnvVar = (failureDefault: any, ...envVarNames: string[]) => {
-  const desiredPrimitive = (typeof failureDefault) as PrimitiveTypeString;
+  const desiredPrimitive = typeof failureDefault as PrimitiveTypeString;
   for (const envVarName of envVarNames) {
     const envVar = process.env[envVarName];
     if (typeof envVar !== "undefined") {
@@ -12,7 +14,7 @@ const _parseEnvVar = (failureDefault: any, ...envVarNames: string[]) => {
   return failureDefault;
 };
 
-// SSO
+/* SSO */
 const _CLIENT_ID = _parseEnvVar(
   "react-boilerplate",
   "REACT_APP_SSO_CLIENT_ID_OKD",
@@ -37,9 +39,21 @@ const _AUTHORITY = _parseEnvVar(
 export const Config = {
   webapp: {},
   api: {
-    host: _parseEnvVar("localhost", "REACT_APP_IOTW_API_HOST_OKD", "REACT_APP_IOTW_API_HOST"),
-    port: _parseEnvVar("3001", "REACT_APP_IOTW_API_PORT_OKD", "REACT_APP_IOTW_API_PORT"),
-    storeSubmissionsLocally: _parseEnvVar(true, "REACT_APP_IOTW_API_STORE_SUBMISSIONS_LOCALLY_OKD", "REACT_APP_IOTW_API_STORE_SUBMISSIONS_LOCALLY"),
+    host: _parseEnvVar(
+      "localhost",
+      "REACT_APP_IOTW_API_HOST_OKD",
+      "REACT_APP_IOTW_API_HOST"
+    ),
+    port: _parseEnvVar(
+      "3001",
+      "REACT_APP_IOTW_API_PORT_OKD",
+      "REACT_APP_IOTW_API_PORT"
+    ),
+    storeSubmissionsLocally: _parseEnvVar(
+      true,
+      "REACT_APP_IOTW_API_STORE_SUBMISSIONS_LOCALLY_OKD",
+      "REACT_APP_IOTW_API_STORE_SUBMISSIONS_LOCALLY"
+    ),
   },
   sso: {
     client_id: _CLIENT_ID,

@@ -1,38 +1,6 @@
 import mysql from "mysql2";
 import Config from "./config";
-
-export interface UploadsResponseStructure {
-  id: string;
-  uploaderID: string;
-  cshUsername: string;
-  apiPublicFileUrl: string;
-  imageUrl: string;
-  imageMimetype: string;
-  thumbnailUrl: string;
-  thumbnailMimetype: string;
-  updoots: number;
-  downdoots: number;
-  dootDifference: number;
-  absoluteDootDifference: number;
-}
-
-export enum SortedBy {
-  Updoots = "updoots",
-  Downdoots = "downdoots",
-  UploaderID = "uploaderID",
-  CSHUsername = "cshUsername",
-  DootDifference = "dootDifference",
-  AbsoluteDootDifference = "absoluteDootDifference",
-}
-
-export enum Direction {
-  Ascending = "ascending",
-  Descending = "descending",
-}
-
-const directionEnumToSQL = (input: Direction) =>
-  input === "ascending" ? "ASC" : input === "descending" ? "DESC" : "DESC";
-
+import IOTWShared from "iotw-shared";
 const dbConfig = {
   host: Config.mysql.host,
   port: Config.mysql.port,
@@ -50,17 +18,17 @@ const conn = mysql.createPool(dbConfig).promise();
  * @returns All uploads in the database
  */
 export async function getUploads(
-  maxCount: number = -1,
-  sortedBy: SortedBy = SortedBy.Updoots,
-  direction: Direction = Direction.Descending
+  maxCount: number | null = null,
+  sortedBy: IOTWShared.Enums.SortedBy = IOTWShared.Enums.SortedBy.Updoots,
+  direction: IOTWShared.Enums.Direction = IOTWShared.Enums.Direction.Descending
 ): Promise<any> {
   // could replace 'uploads' with a 'TABLE_NAME' envvar
-  let result: any;
-  const sqlDirection = directionEnumToSQL(direction);
+  let result;
+  const sqlDirection = IOTWShared.Methods.directionEnumToSQL(direction);
   await conn
     .query(
       `SELECT * FROM uploads ORDER BY ${sortedBy} ${sqlDirection} ${
-        maxCount > 0 ? `LIMIT ${maxCount}` : ""
+        maxCount ? `LIMIT ${maxCount}` : ""
       }`
     )
     .then(([_rows]: any) => {
@@ -73,16 +41,16 @@ export async function getUploads(
 export async function getUploadsByColumnValue(
   column_id: string,
   column_value: string,
-  maxCount: number = -1,
-  sortedBy: SortedBy = SortedBy.Updoots,
-  direction: Direction = Direction.Descending
+  maxCount: number | null = null,
+  sortedBy: IOTWShared.Enums.SortedBy = IOTWShared.Enums.SortedBy.Updoots,
+  direction: IOTWShared.Enums.Direction = IOTWShared.Enums.Direction.Descending
 ): Promise<any> {
   let result: any;
-  const sqlDirection = directionEnumToSQL(direction);
+  const sqlDirection = IOTWShared.Methods.directionEnumToSQL(direction);
   await conn
     .query(
       `SELECT * FROM uploads WHERE ${column_id}=${column_value} ORDER BY ${sortedBy} ${sqlDirection} ${
-        maxCount > 0 ? `LIMIT ${maxCount}` : ""
+        maxCount ? `LIMIT ${maxCount}` : ""
       }`
     )
     .then(([_rows]: any) => {
@@ -114,8 +82,8 @@ export async function insertUploads(
   imageMimetype: string,
   thumbnailUrl: string,
   thumbnailMimetype: string,
-  updoots: number = 0,
-  downdoots: number = 0
+  updoots = 0,
+  downdoots = 0
 ): Promise<any> {
   const query = `INSERT INTO uploads (uploaderID, cshUsername, apiPublicFileUrl, imageUrl, imageMimetype, thumbnailUrl, thumbnailMimetype, updoots, downdoots)
             VALUES ("${uploaderID}", "${cshUsername}", "${apiPublicFileUrl}","${imageUrl}", "${imageMimetype}", "${thumbnailUrl}", "${thumbnailMimetype}", ${updoots}, ${downdoots})`;
@@ -123,8 +91,6 @@ export async function insertUploads(
 }
 
 export default {
-  SortedBy,
-  Direction,
   getUploads,
   getUploadsByColumnValue,
   insertUploads,

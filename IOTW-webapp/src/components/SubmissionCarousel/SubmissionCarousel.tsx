@@ -1,12 +1,13 @@
 import React from "react";
 import Slider from "react-slick";
+import { Container } from "reactstrap";
+import Logger from "easylogger-ts";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./SubmissionCarousel.scss";
 
 import APIMiddleware from "../../misc/APIMiddleware";
-import Logger from "easylogger-ts";
-import { Container } from "reactstrap";
+import IOTWShared from "iotw-shared";
 import Config from "../../misc/config";
 import SubmissionFullOverlay from "../SubmissionFullOverlay";
 import DootDifferenceDisplay from "../DootDifferenceDisplay";
@@ -138,7 +139,7 @@ import DootDifferenceDisplay from "../DootDifferenceDisplay";
 
 interface SubmissionArrowProps {
   direction: "previous" | "next";
-  onClick?: Function;
+  onClick?: React.EventHandler<any>;
 }
 type SubmissionArrowType = React.FunctionComponent<SubmissionArrowProps>;
 const SubmissionArrow: SubmissionArrowType = (
@@ -148,8 +149,8 @@ const SubmissionArrow: SubmissionArrowType = (
     <button
       className={`submission-arrow`}
       id={props.direction}
-      onClick={() => {
-        if (props.onClick) props.onClick();
+      onClick={(evt) => {
+        if (props.onClick) props.onClick(evt);
       }}
     >
       <span>{props.direction === "previous" ? "<" : ">"}</span>
@@ -192,34 +193,42 @@ export const SubmissionSlide: React.FunctionComponent<SubmissionSlideProps> = (
     const dom = document as any;
     const dragThreshold = 100;
     let dragInterval: NodeJS.Timeout | null = null;
-    let currentMousePos = [0, 0];
-    const onPointerMove = (ev: MouseEvent | TouchEvent) => {
-      if(ev.type.includes("mouse")){
-        ev = ev as MouseEvent;
-        currentMousePos = [ev.clientX, ev.clientY];
+    let currentMousePosition = [0, 0];
+    const updateCurrentMousePosition: EventListener = (evt: Event) => {
+      console.log(currentMousePosition);
+      const mousePosition = IOTWShared.Methods.mousePositionFromEvent(evt);
+      if (mousePosition) {
+        currentMousePosition = mousePosition;
       }
-      else if(ev.type.includes("touch")){
-        ev = ev as TouchEvent;
-
-      }
-    }
-    document.addEventListener("touchmove", (ev: TouchEvent) => {
-      currentMousePos = [ev.x, ev.clientY];
-
-    });
-    document.addEventListener("mousemove", (ev: MouseEvent) => {
-    });
-    document.addEventListener("mouseup", (ev: MouseEvent) => {
+    };
+    IOTWShared.Methods.addEventListeners(
+      [
+        "mousedown",
+        "mouseup",
+        "mousemove",
+        "mouseover",
+        "mouseout",
+        "mouseenter",
+        "mouseleave",
+        "touchstart",
+        "touchmove",
+        "touchend",
+        "touchcancel",
+      ],
+      updateCurrentMousePosition
+    );
+    IOTWShared.Methods.addEventListeners(["mouseup", "touchend"], () => {
       if (dragInterval) clearInterval(dragInterval);
     });
-    document.addEventListener("mousedown", (ev: MouseEvent) => {
-      let initialMousePos = [ev.clientX, ev.clientY];
+    IOTWShared.Methods.addEventListeners(["mousedown", "touchstart"], (evt: Event) => {
+      const initialMousePos = IOTWShared.Methods.mousePositionFromEvent(evt);
+      if(!initialMousePos) return;
       dragInterval = setInterval(() => {
         const dragDistance = Math.sqrt(
-          Math.abs(initialMousePos[0] - currentMousePos[0]) ** 2 +
-            Math.abs(initialMousePos[1] - currentMousePos[1]) ** 2
+          Math.abs(initialMousePos[0] - currentMousePosition[0]) ** 2 +
+            Math.abs(initialMousePos[1] - currentMousePosition[1]) ** 2
         );
-        if (dragDistance > dragThreshold) dom.userDragging = true;
+        dom.userDragging = dragDistance > dragThreshold;
       }, 100);
     });
   }, [props.id, slideCheck]);
@@ -270,6 +279,7 @@ export const SubmissionCarousel: React.FunctionComponent<
             const errStr = `SubmissionCardCarousel: props.apiPublicFileUrl required \
             when storing submissions locally! Props provided: ${Logger.objectToPrettyStringSync(
               props as Record<string, any>
+              // eslint-disable-next-line indent
             )}`;
             Logger.error(errStr);
             throw new Error(errStr);
@@ -284,6 +294,7 @@ export const SubmissionCarousel: React.FunctionComponent<
             props.imageMimetype required when not storing submissions \
             locally! Props provided: ${Logger.objectToPrettyStringSync(
               props as Record<string, any>
+              // eslint-disable-next-line indent
             )}`;
             Logger.error(errStr);
             throw new Error(errStr);

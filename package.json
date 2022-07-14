@@ -2,9 +2,9 @@
   "name": "iotw",
   "version": "1.0.0",
   "description": "IOTW super-monolith",
-  "main": "start.sh",
+  "main": "start.js",
   "scripts": {
-    "start": "./start.sh",
+    "start": "node start.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/adamhb123/IOTW/issues"
   },
-  "homepage": "https://github.com/adamhb123/IOTW#readme"
+  "homepage": "https://github.com/adamhb123/IOTW#readme",
+  "devDependencies": {
+    "iotw-shared": "^1.0.0"
+  }
 }

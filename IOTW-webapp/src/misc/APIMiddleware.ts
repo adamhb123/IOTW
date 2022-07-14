@@ -1,7 +1,7 @@
 import fetch from "cross-fetch";
 import Logger from "easylogger-ts";
 import Config from "./config";
-import { pathJoin } from "./utility";
+import { pathJoin } from "../../../IOTW-shared/src/utility";
 
 const apiUrl = `${Config.api.host}:${Config.api.port}`;
 
@@ -14,37 +14,10 @@ export enum SortedBy {
   AbsoluteDootDifference = "absoluteDootDifference",
 }
 
-export const sortedByToString = (sortedBy: SortedBy | string) => {
-  if (sortedBy === SortedBy.CSHUsername) return "CSH Username";
-  else if (sortedBy === SortedBy.UploaderID) return "Uploader ID";
-  return sortedBy
-    .split(/(?=[A-Z])/)
-    .map((str) => str[0].toUpperCase() + str.substring(1, str.length))
-    .join(" ");
-};
 
-export enum Direction {
-  Ascending = "ascending",
-  Descending = "descending",
-}
 
-export const directionToString = (direction: Direction | string) =>
-  direction[0].toUpperCase() + direction.substring(1, direction.length);
 
-export interface UploadsResponseStructure {
-  id: string;
-  uploaderID: string;
-  cshUsername: string;
-  apiPublicFileUrl: string;
-  imageUrl: string;
-  imageMimetype: string;
-  thumbnailUrl: string;
-  thumbnailMimetype: string;
-  updoots: number;
-  downdoots: number;
-  dootDifference: number;
-  absoluteDootDifference: number;
-}
+
 
 export const downloadSlackImage = async (url: string): Promise<string> => {
   const res = await fetch(`${apiUrl}/getSlackFile?url=${url}`);
@@ -98,7 +71,7 @@ export const getMaxRetries = () => MAX_RETRIES;
 export const setMaxRetries = (maxRetries: number) => (MAX_RETRIES = maxRetries);
 
 export const getSubmissions = async (
-  maxCount: number = -1,
+  maxCount = -1,
   sortedBy: SortedBy = SortedBy.Updoots,
   direction: Direction = Direction.Descending
 
@@ -116,7 +89,7 @@ export const getSubmissions = async (
 export const getSubmissionByColumnValue = async (
   columnID: string,
   columnValue: string,
-  maxCount: number = -1,
+  maxCount = -1,
   sortedBy: SortedBy = SortedBy.Updoots,
   direction: Direction = Direction.Descending
 ): Promise<UploadsResponseStructure[]> => {

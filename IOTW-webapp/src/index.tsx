@@ -3,13 +3,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { OidcProvider } from "@axa-fr/react-oidc";
+// Local modules
+import Config from "./misc/config";
 import Home from "./pages/Home";
 import Submissions from "./pages/Submissions";
 import NavBar from "./components/NavBar";
 import "bootstrap/dist/css/bootstrap.css";
-// Local modules
 import "./index.scss";
-import Config from "./misc/config";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

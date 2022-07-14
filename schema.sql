@@ -32,6 +32,22 @@ CREATE TABLE `competitions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `competitions_statistics`
+--
+
+DROP TABLE IF EXISTS `competitions_statistics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `competitions_statistics` (
+  `match_id` int NOT NULL,
+  `user_slack_id` varchar(256) NOT NULL,
+  `upload_id` varchar(256) NOT NULL,
+  `placement` int NOT NULL,
+  UNIQUE KEY `upload_id` (`upload_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `uploads`
 --
 
@@ -81,4 +97,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-07-07 11:08:00
+-- Dump completed on 2022-07-14 13:51:30
