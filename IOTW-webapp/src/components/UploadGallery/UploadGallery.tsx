@@ -9,39 +9,41 @@ import {
 } from "reactstrap";
 // import { useOidcUser } from "@axa-fr/react-oidc";
 import Logger from "easylogger-ts";
-import SubmissionCard from "./SubmissionCard";
-import APIMiddleware, {
-  Direction,
-  UploadsResponseStructure,
-  SortedBy,
-} from "../../misc/APIMiddleware";
-import "./SubmissionGallery.scss";
+import UploadCard from "./UploadCard";
+import APIMiddleware from "../../misc/APIMiddleware";
+import "./UploadGallery.scss";
 import Config from "../../misc/config";
-import SubmissionFullOverlay from "../SubmissionFullOverlay";
+import UploadFullOverlay from "../UploadFullOverlay";
+import IOTWShared from "iotw-shared";
+import { useOidcUser } from "@axa-fr/react-oidc";
+
 const SUBFETCH_INTERVAL_MS = 5000;
 let LAST_SUBFETCH_SUCCESSFUL = false;
 let SUBFETCH_ATTEMPT_COUNT = 0;
 
-const SubFetchFailure = () => <></>;
+const UploadFetchFailure = () => <></>;
 
-const Items = (props: { currentItems: UploadsResponseStructure[] }) => {
+const Items = (props: {
+  currentItems: IOTWShared.UploadsResponseStructure[];
+}) => {
   const toggleShowFullOverlayOnClick = (src: string) => {
-    const dom = document as any;
-    dom.setSubmissionFullOverlaySrc(src);
-    dom.setSubmissionFullOverlayVisible(!dom.submissionFullOverlayVisible);
+    const dom = document as IOTWShared.IOTWDOM;
+    if (dom.setUploadFullOverlaySrc) dom.setUploadFullOverlaySrc(src);
+    if (dom.setUploadFullOverlayVisible)
+      dom.setUploadFullOverlayVisible(!dom.uploadFullOverlayVisible);
   };
   return (
     <>
       {props.currentItems &&
-        props.currentItems.map((item: UploadsResponseStructure) => {
-          const fullOverlaySrc = Config.api.storeSubmissionsLocally
+        props.currentItems.map((item: IOTWShared.UploadsResponseStructure) => {
+          const fullOverlaySrc = Config.api.storeUploadsLocally
             ? APIMiddleware.formatSlackImageSrc(item.apiPublicFileUrl)
             : APIMiddleware.formatSlackImageSrc(
                 item.imageUrl,
                 item.imageMimetype
               );
           return (
-            <SubmissionCard
+            <UploadCard
               key={item.id}
               author={item.cshUsername}
               thumbnailUrl={item.thumbnailUrl}
@@ -51,7 +53,7 @@ const Items = (props: { currentItems: UploadsResponseStructure[] }) => {
               onClick={toggleShowFullOverlayOnClick.bind(null, fullOverlaySrc)}
             >
               Test f
-            </SubmissionCard>
+            </UploadCard>
           );
         })}
     </>
@@ -60,8 +62,9 @@ const Items = (props: { currentItems: UploadsResponseStructure[] }) => {
 
 interface PaginatedItemProps {
   itemsPerPage: number;
-  sortedBy?: SortedBy;
-  direction?: Direction;
+  userOnly: boolean;
+  uploadColumnID?: IOTWShared.UploadColumnID;
+  direction?: IOTWShared.Direction;
 }
 type PaginatedItemType = React.FunctionComponent<PaginatedItemProps>;
 const PaginatedItems: PaginatedItemType = (props: PaginatedItemProps) => {
@@ -71,37 +74,47 @@ const PaginatedItems: PaginatedItemType = (props: PaginatedItemProps) => {
   // Here we use item offsets; we could also use page offsets
   // following the API or data you're working with.
   const [itemOffset, setItemOffset] = React.useState(0);
-  const [items, setItems] = React.useState([] as UploadsResponseStructure[]);
+  const [items, setItems] = React.useState(
+    [] as IOTWShared.UploadsResponseStructure[]
+  );
+  const { oidcUser, oidcUserLoadingState } = useOidcUser();
   React.useEffect(() => {
-    const subFetch = (sortedBy?: SortedBy, direction?: Direction) =>
+    const uploadFetch = (
+      sortedBy?: IOTWShared.UploadColumnID,
+      direction?: IOTWShared.Direction
+    ) =>
       (async () => {
-        const submissions = await APIMiddleware.getSubmissions(
-          -1,
-          sortedBy,
-          direction
-        );
+        const uploads = props.userOnly
+          ? await APIMiddleware.getUploadByColumnValue(
+              IOTWShared.UploadColumnID.CSHUsername,
+              oidcUser?.preferredUsername,
+              null,
+              sortedBy,
+              direction
+            )
+          : await APIMiddleware.getUploads(null, sortedBy, direction);
         await Logger.log(
-          await Logger.objectToPrettyString(submissions as Record<string, any>)
+          await Logger.objectToPrettyString(uploads as Record<string, any>)
         );
-        setItems(submissions);
+        setItems(uploads);
         LAST_SUBFETCH_SUCCESSFUL = true;
       })().catch((err) => {
-        Logger.error("Submission retrieval failed");
+        console.error("Upload retrieval failed");
         LAST_SUBFETCH_SUCCESSFUL = false;
         SUBFETCH_ATTEMPT_COUNT++;
         const maxRetries = APIMiddleware.getMaxRetries();
         if (SUBFETCH_ATTEMPT_COUNT >= maxRetries) {
-          Logger.error(
+          console.error(
             `Reached max failed fetch limit (${maxRetries}). Refresh to try again.`
           );
           return;
         }
-        setTimeout(subFetch, SUBFETCH_INTERVAL_MS);
+        setTimeout(uploadFetch, SUBFETCH_INTERVAL_MS);
       });
-    const dom = document as any;
-    if (!Object.prototype.hasOwnProperty.call(dom, "subFetch"))
-      dom.subFetch = subFetch;
-    subFetch();
+    const dom = document as IOTWShared.IOTWDOM;
+    if (!Object.prototype.hasOwnProperty.call(dom, "uploadFetch"))
+      dom.uploadFetch = uploadFetch;
+    uploadFetch();
   }, []);
   React.useEffect(() => {
     console.log(items);
@@ -138,76 +151,76 @@ const PaginatedItems: PaginatedItemType = (props: PaginatedItemProps) => {
       />
       {!LAST_SUBFETCH_SUCCESSFUL &&
       SUBFETCH_ATTEMPT_COUNT >= APIMiddleware.getMaxRetries() ? (
-        <SubFetchFailure />
+        <UploadFetchFailure />
       ) : null}
     </>
   );
 };
 
 const SortDropdowns = () => {
-  const [
-    sortedByDropdownOpen,
-    setSortedByDropdownOpen,
-  ] = React.useState<boolean>(false);
-  const sortedByDropdownToggle = () =>
-    setSortedByDropdownOpen(!sortedByDropdownOpen);
-  const sortedByDropdownItems = Object.values(
-    APIMiddleware.SortedBy
-  ).map((sortedBy) => (
-    <DropdownItem onClick={() => setSelectedSort(sortedBy)}>
-      {APIMiddleware.sortedByToString(sortedBy)}
+  const [uploadColumnIDDropdownOpen, setUploadColumnIDDropdownOpen] =
+    React.useState<boolean>(false);
+  const uploadColumnIDDropdownToggle = () =>
+    setUploadColumnIDDropdownOpen(!uploadColumnIDDropdownOpen);
+  const uploadColumnIDDropdownItems = Object.values(
+    IOTWShared.UploadColumnID
+  ).map((uploadColumnID) => (
+    <DropdownItem onClick={() => setSelectedSort(uploadColumnID)}>
+      {IOTWShared.uploadColumnIDToString(uploadColumnID)}
     </DropdownItem>
   ));
-  const [
-    directionDropdownOpen,
-    setDirectionDropdownOpen,
-  ] = React.useState<boolean>(false);
+  const [directionDropdownOpen, setDirectionDropdownOpen] =
+    React.useState<boolean>(false);
   const directionDropdownToggle = () =>
     setDirectionDropdownOpen(!directionDropdownOpen);
-  const directionDropdownItems = Object.values(
-    APIMiddleware.Direction
-  ).map((direction) => (
-    <DropdownItem onClick={() => setSelectedDirection(direction)}>
-      {APIMiddleware.directionToString(direction)}
-    </DropdownItem>
-  ));
+  const directionDropdownItems = Object.values(IOTWShared.Direction).map(
+    (direction) => (
+      <DropdownItem onClick={() => setSelectedDirection(direction)}>
+        {IOTWShared.directionToString(direction)}
+      </DropdownItem>
+    )
+  );
   const [selectedSort, setSelectedSort] = React.useState<string | null>(null);
   const [selectedDirection, setSelectedDirection] = React.useState<
     string | null
   >(null);
   React.useEffect(() => {
     (async () => {
-      const dom = document as any;
-      if (Object.prototype.hasOwnProperty.call(dom, "subFetch")) {
+      const dom = document as IOTWShared.IOTWDOM;
+      if (Object.prototype.hasOwnProperty.call(dom, "uploadFetch")) {
         console.log("TEST");
-        dom.subFetch(selectedSort, selectedDirection);
+        if (dom.uploadFetch)
+          dom.uploadFetch(
+            selectedSort as IOTWShared.UploadColumnID,
+            selectedDirection as IOTWShared.Direction
+          );
       }
     })();
   }, [selectedSort, selectedDirection]);
   return (
-    <Container className="submission-gallery-dropdown-container">
+    <Container className="upload-gallery-dropdown-container">
       <Dropdown
         title="Sort By"
-        isOpen={sortedByDropdownOpen}
-        toggle={sortedByDropdownToggle}
-        className="submission-gallery-dropdown"
+        isOpen={uploadColumnIDDropdownOpen}
+        toggle={uploadColumnIDDropdownToggle}
+        className="upload-gallery-dropdown"
       >
         <DropdownToggle caret>
           {selectedSort
-            ? APIMiddleware.sortedByToString(selectedSort)
+            ? IOTWShared.uploadColumnIDToString(selectedSort)
             : "Sort By"}
         </DropdownToggle>
-        <DropdownMenu>{sortedByDropdownItems}</DropdownMenu>
+        <DropdownMenu>{uploadColumnIDDropdownItems}</DropdownMenu>
       </Dropdown>
       <Dropdown
         title="Direction"
         isOpen={directionDropdownOpen}
         toggle={directionDropdownToggle}
-        className="submission-gallery-dropdown"
+        className="upload-gallery-dropdown"
       >
         <DropdownToggle caret>
           {selectedDirection
-            ? APIMiddleware.directionToString(selectedDirection)
+            ? IOTWShared.directionToString(selectedDirection)
             : "Direction"}
         </DropdownToggle>
         <DropdownMenu>{directionDropdownItems}</DropdownMenu>
@@ -216,22 +229,22 @@ const SortDropdowns = () => {
   );
 };
 
-type SubmissionGalleryProps = { userOnly: boolean; title: string };
+type UploadGalleryProps = { userOnly: boolean; title: string };
 
-const SubmissionGallery: React.FunctionComponent<SubmissionGalleryProps> = (
-  props: SubmissionGalleryProps
+const UploadGallery: React.FunctionComponent<UploadGalleryProps> = (
+  props: UploadGalleryProps
 ) => (
-  <Container id="submission-gallery">
-    <SubmissionFullOverlay src={""} />
-    <div id="submission-gallery-header">
+  <Container id="upload-gallery">
+    <UploadFullOverlay src={""} />
+    <div id="upload-gallery-header">
       <h1>{props.title}</h1>
-      <hr className="my-1"/>
+      <hr className="my-1" />
       <SortDropdowns />
     </div>
-    <div id="submissions-container">
-      <PaginatedItems itemsPerPage={16} />
+    <div id="uploads-container">
+      <PaginatedItems userOnly={props.userOnly ?? false} itemsPerPage={16} />
     </div>
   </Container>
 );
 
-export default SubmissionGallery;
+export default UploadGallery;

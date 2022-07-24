@@ -1,12 +1,12 @@
 import { Container } from "reactstrap";
-import { SubmissionCarousel } from "../../components/SubmissionCarousel"
+import UploadCarousel from "../../components/UploadCarousel";
 
 const Home: React.FunctionComponent = () => {
   return (
     <Container>
-      <SubmissionCarousel maxItemCount={5}/>
+      <UploadCarousel maxItemCount={5} />
     </Container>
   );
-}
+};
 
 export default Home;

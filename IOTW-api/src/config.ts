@@ -1,6 +1,5 @@
 import IOTWShared from "iotw-shared";
 import EasyConfig from "easyconfig-ts";
-console.log("amongussex: " + process.env["IOTW_SUBLEVEL_CONFIGURATIONS"]);
 if (process.env["IOTW_SUBLEVEL_CONFIGURATIONS"] !== "false") {
   EasyConfig({
     rootPath: __dirname,
@@ -22,7 +21,7 @@ const Config = {
   api: {
     host: IOTWShared.parseEnvVar("localhost", "IOTW_API_HOST_OKD", "IOTW_API_HOST"),
     port: IOTWShared.parseEnvVar("3001", "IOTW_API_PORT_OKD", "IOTW_API_PORT"),
-    storeSubmissionsLocally: IOTWShared.parseEnvVar(
+    storeUploadsLocally: IOTWShared.parseEnvVar(
       true,
       "IOTW_API_STORE_SUBMISSIONS_LOCALLY_OKD",
       "IOTW_API_STORE_SUBMISSIONS_LOCALLY"

@@ -1,21 +1,9 @@
 import fetch from "cross-fetch";
 import Logger from "easylogger-ts";
 import Config from "./config";
-import { pathJoin } from "../../../IOTW-shared/src/utility";
+import IOTWShared from "iotw-shared";
 
 const apiUrl = `${Config.api.host}:${Config.api.port}`;
-
-export enum SortedBy {
-  Updoots = "updoots",
-  Downdoots = "downdoots",
-  UploaderID = "uploaderID",
-  CSHUsername = "cshUsername",
-  DootDifference = "dootDifference",
-  AbsoluteDootDifference = "absoluteDootDifference",
-}
-
-
-
 
 
 
@@ -28,8 +16,8 @@ export const downloadSlackImage = async (url: string): Promise<string> => {
 };
 
 export const formatSlackImageSrc = (src: string, mimetype?: string) =>
-  Config.api.storeSubmissionsLocally
-    ? pathJoin(apiUrl, src)
+  Config.api.storeUploadsLocally
+    ? IOTWShared.pathJoin(apiUrl, src)
     : `data:${mimetype};base64, ${src}`;
 
 // useLocalStorage generally only useful with small images (AKA thumbnails)
@@ -70,44 +58,42 @@ let MAX_RETRIES = 5;
 export const getMaxRetries = () => MAX_RETRIES;
 export const setMaxRetries = (maxRetries: number) => (MAX_RETRIES = maxRetries);
 
-export const getSubmissions = async (
-  maxCount = -1,
-  sortedBy: SortedBy = SortedBy.Updoots,
-  direction: Direction = Direction.Descending
+export const getUploads = async (
+  maxCount: number | null = null,
+  sortedBy: IOTWShared.UploadColumnID = IOTWShared.UploadColumnID.Updoots,
+  direction: IOTWShared.Direction = IOTWShared.Direction.Descending
 
-): Promise<UploadsResponseStructure[]> => {
-  // Retrieve submissions, sorting is handled server-side by iotw-api
+): Promise<IOTWShared.UploadsResponseStructure[]> => {
+  // Retrieve uploads, sorting is handled server-side by iotw-api
   const queryParams = `maxCount=${maxCount}&sortedBy=${sortedBy}&direction=${direction}`;
   Logger.warn(queryParams);
   const res = await fetch(
     `${Config.api.host}:${Config.api.port}/uploads?${queryParams}`
   );
   const json = await res.json();
-  return json.data;
+  return json.data.uploads;
 };
 
-export const getSubmissionByColumnValue = async (
+export const getUploadByColumnValue = async (
   columnID: string,
   columnValue: string,
-  maxCount = -1,
-  sortedBy: SortedBy = SortedBy.Updoots,
-  direction: Direction = Direction.Descending
-): Promise<UploadsResponseStructure[]> => {
+  maxCount: number | null = null,
+  sortedBy?: IOTWShared.UploadColumnID,
+  direction?: IOTWShared.Direction
+): Promise<IOTWShared.UploadsResponseStructure[]> => {
+  sortedBy = sortedBy ?? IOTWShared.UploadColumnID.Updoots;
+  direction = direction ?? IOTWShared.Direction.Descending;
   const queryParams = `columnID=${columnID}&columnValue=${columnValue}&maxCount=${maxCount}&sortedBy=${sortedBy}&direction=${direction}`;
   const res = await fetch(`${apiUrl}/uploadsByColumnValue?${queryParams}`);
   const json = await res.json();
-  return json.data;
+  return json.data.uploads;
 };
 const APIMiddleware = {
-  SortedBy,
-  sortedByToString,
-  Direction,
-  directionToString,
   getSlackImageBase64,
   formatSlackImageSrc,
   getMaxRetries,
   setMaxRetries,
-  getSubmissions,
-  getSubmissionByColumnValue,
+  getUploads,
+  getUploadByColumnValue,
 };
 export default APIMiddleware;

@@ -2,63 +2,63 @@
 
 $csh-color-a: #b0197e;
 
-$submissions-container-width: 80vw;
+$uploads-container-width: 80vw;
 
-#submission-gallery {
+#upload-gallery {
   padding: 1rem;
   max-width: 1600px;
   text-align: center;
 }
 
-#submission-gallery h1 {
+#upload-gallery h1 {
   display: inline-block;
   margin-bottom: 0;
 }
 
-#submissions-container {
+#uploads-container {
   display: inline-block;
   position: relative;
   margin: auto;
   text-align: center;
 }
 
-#submission-gallery-header {
+#upload-gallery-header {
   width: 72vw;
   margin: auto;
 }
 
-.submission-gallery-dropdown-container.container {
+.upload-gallery-dropdown-container.container {
   position: relative;
   width: auto;
   text-align: center;
   margin: 0;
 }
 
-.submission-gallery-dropdown {
+.upload-gallery-dropdown {
   position: relative;
   z-index: 10;
   display: inline-block;
   margin-left: 1rem;
 }
 
-.submission-gallery-dropdown > button {
+.upload-gallery-dropdown > button {
   position: relative;
   width: 100%;
   background-color: transparent;
   color: black;
   border: none;
 }
-.submission-gallery-dropdown > button:hover {
+.upload-gallery-dropdown > button:hover {
   background-color: lighten($csh-color-a, 5%);
 }
-.submission-gallery-dropdown.show > button {
+.upload-gallery-dropdown.show > button {
   background-color: darken($csh-color-a, 10%) !important;
 }
-.submission-card .card-text {
+.upload-card .card-text {
   margin-bottom: 0.5rem;
 
 }
-.submission-card .doot-difference-text {
+.upload-card .doot-difference-text {
   font-size: 1.4rem;
   margin-right: 1rem;
 }

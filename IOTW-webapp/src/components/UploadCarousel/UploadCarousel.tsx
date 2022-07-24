@@ -4,15 +4,15 @@ import { Container } from "reactstrap";
 import Logger from "easylogger-ts";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import "./SubmissionCarousel.scss";
+import "./UploadCarousel.scss";
 
 import APIMiddleware from "../../misc/APIMiddleware";
 import IOTWShared from "iotw-shared";
 import Config from "../../misc/config";
-import SubmissionFullOverlay from "../SubmissionFullOverlay";
+import UploadFullOverlay from "../UploadFullOverlay";
 import DootDifferenceDisplay from "../DootDifferenceDisplay";
 
-// export class SubmissionCarouselItem {
+// export class UploadCarouselItem {
 //   src: string;
 //   altText: string;
 //   caption: string;
@@ -30,11 +30,11 @@ import DootDifferenceDisplay from "../DootDifferenceDisplay";
 //   }
 // }
 
-// export class SubmissionCarousel extends Component<SubmissionCarouselProps> {
+// export class UploadCarousel extends Component<UploadCarouselProps> {
 //   maxItemCount: number;
 //   animating: boolean;
-//   state: {activeIndex: number; items: SubmissionCarouselItem[]} = { activeIndex: 0, items: [] };
-//   constructor(props: SubmissionCarouselProps) {
+//   state: {activeIndex: number; items: UploadCarouselItem[]} = { activeIndex: 0, items: [] };
+//   constructor(props: UploadCarouselProps) {
 //     super(props);
 //     this.next = this.next.bind(this);
 //     this.previous = this.previous.bind(this);
@@ -47,14 +47,14 @@ import DootDifferenceDisplay from "../DootDifferenceDisplay";
 //   }
 
 //   async updateItems() {
-//     const submissions = await APIMiddleware.getSubmissions(this.maxItemCount);
+//     const uploads = await APIMiddleware.getUploads(this.maxItemCount);
 //     this.state.items = await Promise.all(
-//       submissions.map(async (submission: UploadsResponseStructure) => {
-//         const imageB64 = await APIMiddleware.getSlackImageBase64(submission.imageUrl);
-//         return new SubmissionCarouselItem(
-//           `data:${submission.imageMimetype};base64, ${imageB64}`,
-//           `Slack image from url: ${submission.imageUrl}`,
-//           `^${submission.updoots} v${submission.downdoots}`
+//       uploads.map(async (upload: UploadsResponseStructure) => {
+//         const imageB64 = await APIMiddleware.getSlackImageBase64(upload.imageUrl);
+//         return new UploadCarouselItem(
+//           `data:${upload.imageMimetype};base64, ${imageB64}`,
+//           `Slack image from url: ${upload.imageUrl}`,
+//           `^${upload.updoots} v${upload.downdoots}`
 //         )
 //       })
 //     );
@@ -137,17 +137,17 @@ import DootDifferenceDisplay from "../DootDifferenceDisplay";
 //   }
 // }
 
-interface SubmissionArrowProps {
+interface UploadArrowProps {
   direction: "previous" | "next";
   onClick?: React.EventHandler<any>;
 }
-type SubmissionArrowType = React.FunctionComponent<SubmissionArrowProps>;
-const SubmissionArrow: SubmissionArrowType = (
-  props: SubmissionArrowProps
+type UploadArrowType = React.FunctionComponent<UploadArrowProps>;
+const UploadArrow: UploadArrowType = (
+  props: UploadArrowProps
 ): React.ReactElement<any, any> => {
   return (
     <button
-      className={`submission-arrow`}
+      className={`upload-arrow`}
       id={props.direction}
       onClick={(evt) => {
         if (props.onClick) props.onClick(evt);
@@ -158,29 +158,45 @@ const SubmissionArrow: SubmissionArrowType = (
   );
 };
 
-interface SubmissionSlideProps {
+interface UploadSlideProps {
   id: string; // ID and key will be the same value
   src: string;
   dootDifference: number;
   onClick?: React.MouseEventHandler;
 }
 
-export const SubmissionSlide: React.FunctionComponent<SubmissionSlideProps> = (
-  props: SubmissionSlideProps
+export const UploadSlide: React.FunctionComponent<UploadSlideProps> = (
+  props: UploadSlideProps
 ) => {
   const toggleShowFullOverlayOnClick = React.useCallback(() => {
-    const dom = document as any;
-    console.log("drag: " + dom.userDragging);
-    if (
-      Object.prototype.hasOwnProperty.call(dom, "userDragging") &&
-      !dom.userDragging
-    ) {
-      dom.setSubmissionFullOverlaySrc(props.src);
-      dom.setSubmissionFullOverlayVisible(!dom.submissionFullOverlayVisible);
+    const dom = document as IOTWShared.IOTWDOM;
+    if (!dom.userDragging) {
+      if (dom.setUploadFullOverlaySrc) props.src;
+      if (dom.setUploadFullOverlayVisible) !dom.uploadFullOverlayVisible;
     }
     // Reset userDragging
     dom.userDragging = false;
   }, [props.src]);
+
+  const dragThreshold = 25;
+  let dragInterval: NodeJS.Timeout | null = null;
+  IOTWShared.addEventListeners(["mouseup", "touchend"], () => {
+    if (dragInterval) clearInterval(dragInterval);
+  });
+  IOTWShared.addEventListeners(["mousedown", "touchstart"], (evt: Event) => {
+    const dom = document as IOTWShared.IOTWDOM;
+    const initialMousePos = IOTWShared.mousePositionFromEvent(evt);
+    if (!initialMousePos) return;
+    if (dragInterval) clearInterval(dragInterval);
+    dragInterval = setInterval(() => {
+      if (!dom.currentMousePosition) return;
+      const dragDistance = Math.sqrt(
+        Math.abs(initialMousePos[0] - dom.currentMousePosition[0]) ** 2 +
+          Math.abs(initialMousePos[1] - dom.currentMousePosition[1]) ** 2
+      );
+      dom.userDragging = dragDistance > dragThreshold;
+    }, 100);
+  });
 
   const [slideCheck, retriggerSlideCheck] = React.useState<boolean>(false);
   React.useEffect(() => {
@@ -190,47 +206,6 @@ export const SubmissionSlide: React.FunctionComponent<SubmissionSlideProps> = (
       return;
     }
     // User interaction fixes
-    const dom = document as any;
-    const dragThreshold = 100;
-    let dragInterval: NodeJS.Timeout | null = null;
-    let currentMousePosition = [0, 0];
-    const updateCurrentMousePosition: EventListener = (evt: Event) => {
-      console.log(currentMousePosition);
-      const mousePosition = IOTWShared.Methods.mousePositionFromEvent(evt);
-      if (mousePosition) {
-        currentMousePosition = mousePosition;
-      }
-    };
-    IOTWShared.Methods.addEventListeners(
-      [
-        "mousedown",
-        "mouseup",
-        "mousemove",
-        "mouseover",
-        "mouseout",
-        "mouseenter",
-        "mouseleave",
-        "touchstart",
-        "touchmove",
-        "touchend",
-        "touchcancel",
-      ],
-      updateCurrentMousePosition
-    );
-    IOTWShared.Methods.addEventListeners(["mouseup", "touchend"], () => {
-      if (dragInterval) clearInterval(dragInterval);
-    });
-    IOTWShared.Methods.addEventListeners(["mousedown", "touchstart"], (evt: Event) => {
-      const initialMousePos = IOTWShared.Methods.mousePositionFromEvent(evt);
-      if(!initialMousePos) return;
-      dragInterval = setInterval(() => {
-        const dragDistance = Math.sqrt(
-          Math.abs(initialMousePos[0] - currentMousePosition[0]) ** 2 +
-            Math.abs(initialMousePos[1] - currentMousePosition[1]) ** 2
-        );
-        dom.userDragging = dragDistance > dragThreshold;
-      }, 100);
-    });
   }, [props.id, slideCheck]);
   return (
     <div className="slide" key={props.id}>
@@ -238,14 +213,14 @@ export const SubmissionSlide: React.FunctionComponent<SubmissionSlideProps> = (
       <img
         id={props.id}
         src={props.src}
-        alt="Submission"
+        alt="Upload"
         onClick={toggleShowFullOverlayOnClick}
       />
     </div>
   );
 };
 
-interface SubmissionCarouselProps {
+interface UploadCarouselProps {
   maxItemCount: number;
   autoplay?: boolean;
   onClick?: React.MouseEventHandler;
@@ -253,79 +228,105 @@ interface SubmissionCarouselProps {
   children?: React.ReactElement[] | React.ReactElement;
 }
 
-export const SubmissionCarousel: React.FunctionComponent<
-  SubmissionCarouselProps
-> = (props: SubmissionCarouselProps) => {
-  // Load submissions
+export const UploadCarousel: React.FunctionComponent<UploadCarouselProps> = (
+  props: UploadCarouselProps
+) => {
+  // Mouse position updates
+  const updateCurrentMousePosition: EventListener = (evt: Event) => {
+    const dom = document as IOTWShared.IOTWDOM;
+    const mousePosition = IOTWShared.mousePositionFromEvent(evt);
+    if (mousePosition) {
+      dom.currentMousePosition = mousePosition;
+    }
+  };
+  IOTWShared.addEventListeners(
+    [
+      "mousedown",
+      "mouseup",
+      "mousemove",
+      "mouseover",
+      "mouseout",
+      "mouseenter",
+      "mouseleave",
+      "touchstart",
+      "touchmove",
+      "touchend",
+      "touchcancel",
+    ],
+    updateCurrentMousePosition
+  );
+  // Load uploads
   const [slides, setSlides] = React.useState<React.ReactElement[]>([]);
   React.useEffect(() => {
     (async (): Promise<React.ReactElement[]> => {
-      const subSlides: React.ReactElement[] = props.children
+      const uploadSlides: React.ReactElement[] = props.children
         ? Array.isArray(props.children)
           ? props.children
           : [props.children]
         : [];
-      const presetSlidesLength = subSlides.length;
-      if (presetSlidesLength >= props.maxItemCount) return subSlides;
-      const submissionObjs = await APIMiddleware.getSubmissions(
+      const presetSlidesLength = uploadSlides.length;
+      if (presetSlidesLength >= props.maxItemCount) return uploadSlides;
+      const uploadObjs = await APIMiddleware.getUploads(
         props.maxItemCount - presetSlidesLength
       );
-      let count = subSlides.length;
-      for (const submission of submissionObjs) {
+      let count = uploadSlides.length;
+      console.log(uploadObjs);
+      for (const upload of uploadObjs) {
         let imageSrc: string;
-        Logger.error(Config.api.storeSubmissionsLocally);
-        if (Config.api.storeSubmissionsLocally) {
-          if (!submission.apiPublicFileUrl) {
-            const errStr = `SubmissionCardCarousel: props.apiPublicFileUrl required \
-            when storing submissions locally! Props provided: ${Logger.objectToPrettyStringSync(
+        console.error("err: " + Config.api.storeUploadsLocally);
+        console.error(upload);
+        if (Config.api.storeUploadsLocally) {
+          if (!upload.apiPublicFileUrl) {
+            const errStr = `UploadCardCarousel: props.apiPublicFileUrl required \
+            when storing uploads locally! Props provided: ${Logger.objectToPrettyStringSync(
               props as Record<string, any>
               // eslint-disable-next-line indent
             )}`;
-            Logger.error(errStr);
+            console.error(errStr);
             throw new Error(errStr);
           } else {
             imageSrc = APIMiddleware.formatSlackImageSrc(
-              submission.apiPublicFileUrl
+              upload.apiPublicFileUrl
             );
           }
         } else {
-          if (!(submission.imageUrl && submission.imageMimetype)) {
-            const errStr = `SubmissionCardCarousel: props.imageUrl && \
-            props.imageMimetype required when not storing submissions \
+          if (!(upload.imageUrl && upload.imageMimetype)) {
+            const errStr = `UploadCardCarousel: props.imageUrl && \
+            props.imageMimetype required when not storing uploads \
             locally! Props provided: ${Logger.objectToPrettyStringSync(
               props as Record<string, any>
               // eslint-disable-next-line indent
             )}`;
-            Logger.error(errStr);
+            console.error(errStr);
             throw new Error(errStr);
           } else {
             imageSrc = APIMiddleware.formatSlackImageSrc(
-              await APIMiddleware.getSlackImageBase64(submission.imageUrl),
-              submission.imageMimetype
+              await APIMiddleware.getSlackImageBase64(upload.imageUrl),
+              upload.imageMimetype
             );
           }
         }
-        Logger.error(`slide-${count}`);
-        subSlides.push(
-          <SubmissionSlide
+        console.error(`slide-${count}`);
+        uploadSlides.push(
+          <UploadSlide
             id={`slide-${count++}`}
             src={imageSrc}
-            dootDifference={submission.updoots - submission.downdoots}
+            dootDifference={upload.updoots - upload.downdoots}
           />
         );
       }
-      return subSlides;
+      return uploadSlides;
     })()
-      .then((subSlides) => setSlides(subSlides))
-      .catch((err) => Logger.error(err));
+      .then((uploadSlides) => setSlides(uploadSlides))
+      .catch((err) => console.error(err));
   }, [props]);
   const settings = {
     autoplay: props.autoplay ?? false,
     arrows: true,
     accessibility: true, // Doesn't work i guess
     dots: true,
-    prevArrow: <SubmissionArrow direction="previous" />,
-    nextArrow: <SubmissionArrow direction="next" />,
+    prevArrow: <UploadArrow direction="previous" />,
+    nextArrow: <UploadArrow direction="next" />,
     infinite: true,
     speed: 500,
     slide: ".slide",
@@ -341,10 +342,8 @@ export const SubmissionCarousel: React.FunctionComponent<
   }, [props]);
   return (
     <Container id={props.id}>
-      <SubmissionFullOverlay src={""} />
+      <UploadFullOverlay src={""} />
       <Slider {...settings}>{slides}</Slider>
     </Container>
   );
 };
-
-export default SubmissionCarousel;

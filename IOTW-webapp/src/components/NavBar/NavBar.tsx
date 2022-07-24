@@ -32,8 +32,8 @@ export const NavBar: React.FunctionComponent = () => {
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="/my-submissions" className={"nav-link"}>
-                My Submissions
+              <NavLink href="/my-uploads" className={"nav-link"}>
+                My Uploads
               </NavLink>
           </NavItem>
         </Nav>

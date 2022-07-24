@@ -13,33 +13,32 @@ router.use(express.static(`${__dirname}/../public`));
 
 router.get("/downloadSlackFile", async (req: Request, res: Response) => {
   if (!req.query.url)
-    res.status(400).send(
-      Server.ResponsePacket.asJSON(false, "Failure", {
-        error: "Invalid query parameters",
-      })
-    );
+    res
+      .status(400)
+      .send(Server.ErrorResponsePacket(null, "Invalid query parameters"));
   if (typeof req.query.url === "string") {
     const filePublicUrl = await Server.downloadFileFromUrl(req.query.url).catch(
       (err: string) => Logger.log(err)
     );
     if (filePublicUrl)
       res.status(200).send(
-        Server.ResponsePacket.asJSON(true, "Success", {
+        Server.SuccessResponsePacket(null, {
           filePublicUrl: filePublicUrl,
         })
       );
     else
-      res.status(500).send(
-        Server.ResponsePacket.asJSON(false, "Failure", {
-          error: `Could not download file at url: ${req.query.url}`,
-        })
-      );
+      res
+        .status(500)
+        .send(
+          Server.ErrorResponsePacket(
+            null,
+            `Could not download file at url: ${req.query.url}`
+          )
+        );
   } else {
     res.status(422).send(
       // Could flesh out the error handling 422: (err): ResPack.AsJ(f,"Fail",`${x}` query parameter not provided)
-      Server.ResponsePacket.asJSON(false, "Failure", {
-        error: "'url' query parameter not provided",
-      })
+      Server.ErrorResponsePacket(null, "'url' query parameter not provided")
     );
   }
 });
@@ -48,25 +47,30 @@ router.get("/getSlackFileBase64", async (req: Request, res: Response) => {
     const base64Data = await Server.getSlackFileBase64(req.query.url).catch(
       (err: string) => Logger.log(err)
     );
-    if (base64Data)
+    const mimetype = Server.MIMETypeFromUrl(req.query.url);
+    if (base64Data && mimetype)
       res.send(
-        Server.ResponsePacket.asJSON(true, "Success", {
+        Server.SuccessResponsePacket(null, {
           base64Data: base64Data,
-          mimetype: Server.MIMETypeFromUrl(req.query.url),
+          mimetype: mimetype,
         })
       );
-    else
+    else if (!base64Data)
       res.send(
-        Server.ResponsePacket.asJSON(false, "Failure", {
-          error: `Could not get base64Data from file at url: ${req.query.url}`,
-        })
+        Server.ErrorResponsePacket(
+          null,
+          `Could not get base64Data from file at url: ${req.query.url}`
+        )
+      );
+    else if (!mimetype)
+      res.send(
+        Server.ErrorResponsePacket(
+          null,
+          `Could not get mimetype from file at url: ${req.query.url}`
+        )
       );
   } else {
-    res.send(
-      Server.ResponsePacket.asJSON(false, "Failure", {
-        error: "url query param not provided",
-      })
-    );
+    res.send(Server.ErrorResponsePacket(null, "url query param not provided"));
   }
 });
 
@@ -74,38 +78,33 @@ router.get("/uploads", (req: Request, res: Response) => {
   const maxCount =
     typeof req.query.maxCount === "string"
       ? Number.parseInt(req.query.maxCount)
-      : -1;
+      : null;
   const sortedBy =
-    <IOTWShared.Enums.SortedBy>req.query.sortedBy ??
-    IOTWShared.Enums.SortedBy.Updoots;
+    <IOTWShared.UploadColumnID>req.query.uploadColumnID ??
+    IOTWShared.UploadColumnID.Updoots;
   const direction =
-    <IOTWShared.Enums.Direction>req.query.direction ??
-    IOTWShared.Enums.Direction.Descending;
+    <IOTWShared.Direction>req.query.direction ??
+    IOTWShared.Direction.Descending;
   Database.getUploads(maxCount, sortedBy, direction)
-    .then(
-      (response: IOTWShared.Interfaces.UploadsResponseStructure[] | string) => {
-        const successful: boolean =
-          Boolean(response) &&
-          !Object.prototype.hasOwnProperty.call(response, "message");
-        res.send(
-          Server.ResponsePacket.asJSON(
-            successful,
-            successful ? "Success" : "Failure",
-            {
-              response: response,
-            }
-          )
-        );
-      }
-    )
-    .catch((err: any) =>
-      res.status(500).send(
-        Server.ResponsePacket.asJSON(false, "Failure", {
-          error: err,
-        })
-      )
+    .then((response: Database.dbQueryResult) => {
+      const successful: boolean =
+        Boolean(response) &&
+        !Object.prototype.hasOwnProperty.call(response, "message");
+      res.send(
+        Server.ConditionalResponsePacket(
+          successful,
+          Server.SuccessResponsePacket(null, { uploads: response }),
+          Server.ErrorResponsePacket(null, (response ?? "").toString())
+        )
+      );
+    })
+    .catch((err: unknown) =>
+      res
+        .status(500)
+        .send(Server.ErrorResponsePacket(null, `Caught exception: ${err}`))
     );
 });
+
 router.get("/uploadsByColumnValue", (req: Request, res: Response) => {
   if (
     typeof req.query.columnID === "string" &&
@@ -115,35 +114,38 @@ router.get("/uploadsByColumnValue", (req: Request, res: Response) => {
       typeof req.query.maxCount === "string"
         ? Number.parseInt(req.query.maxCount)
         : null;
-    const sortedBy =
-      <IOTWShared.Enums.SortedBy>req.query.sortedBy ??
-      IOTWShared.Enums.SortedBy.Updoots;
+    const uploadColumnID =
+      <IOTWShared.UploadColumnID>req.query.uploadColumnID ??
+      IOTWShared.UploadColumnID.Updoots;
     const direction =
-      <IOTWShared.Enums.Direction>req.query.direction ??
-      IOTWShared.Enums.Direction.Descending;
-    Database.getUploadsByColumnValue(req.query.columnID, req.query.columnValue, maxCount, sortedBy, direction)
-      .then(
-        (
-          response: IOTWShared.Interfaces.UploadsResponseStructure[] | string
-        ) => {
-          const successful: boolean =
-            Boolean(response) &&
-            !Object.prototype.hasOwnProperty.call(response, "message");
-          res.send(
-            Server.ResponsePacket.asJSON(
-              successful,
-              successful ? "Success" : "Failure",
-              { response: response }
+      <IOTWShared.Direction>req.query.direction ??
+      IOTWShared.Direction.Descending;
+    Database.getUploadsByColumnValue(
+      req.query.columnID,
+      req.query.columnValue,
+      maxCount,
+      uploadColumnID,
+      direction
+    )
+      .then((response: Database.dbQueryResult) => {
+        const successful: boolean =
+          Boolean(response) &&
+          !Object.prototype.hasOwnProperty.call(response, "message");
+        res.send(
+          Server.ConditionalResponsePacket(
+            successful,
+            Server.SuccessResponsePacket(null, { uploads: response }),
+            Server.ErrorResponsePacket(
+              null,
+              `Failed to getUploadsByColumnValue${
+                response ? `, response: ${response}` : ""
+              }`
             )
-          );
-        }
-      )
-      .catch((err: any) =>
-        res.status(500).send(
-          Server.ResponsePacket.asJSON(false, "Failure", {
-            error: err,
-          })
-        )
+          )
+        );
+      })
+      .catch((err: unknown) =>
+        res.status(500).send(Server.ErrorResponsePacket(null, `Error: ${err}`))
       );
   }
 });
@@ -154,15 +156,15 @@ router.post("/upload", async (req: Request, res: Response) => {
     console.log(req.body);
     const cshUsername = req.body.cshUsername ?? "brewer";
     if (!files || !cshUsername) {
-      res.send(
-        Server.ResponsePacket.error(
-          "Malformed request! Analyze the 'data' property within this response to see what we received...",
-          {
-            cshUsername: cshUsername,
-            files: files,
-          }
-        )
+      const response = Server.ErrorResponsePacket(
+        null,
+        "Malformed request! Analyze the 'data' property within this response to see what we received...",
+        {
+          cshUsername: cshUsername,
+          files: files,
+        }
       );
+      res.send(response);
     } else {
       const successfulUploads: string[] = [];
       let attemptedUploadCount = 0;
@@ -196,10 +198,8 @@ router.post("/upload", async (req: Request, res: Response) => {
           const thumbnailUrlSplit = file.thumb_360.split("/");
           const thumbnailFiletype =
             thumbnailUrlSplit[thumbnailUrlSplit.length - 1].split("."); // ["filename", "png"]
-          console.log("tft: " + thumbnailFiletype);
           const thumbnailMimetype =
             Server.MIMETypes[thumbnailFiletype[thumbnailFiletype.length - 1]]; // "image/png"
-          console.log("tmt: " + thumbnailMimetype);
           const apiPublicFileUrl = await Server.downloadFileFromUrl(
             file.url_private,
             true
@@ -220,8 +220,7 @@ router.post("/upload", async (req: Request, res: Response) => {
       if (uploadDelta !== 0)
         throw new Error("Upload aborted, at least 1 upload failed!");
       res.send(
-        Server.ResponsePacket.asJSON(
-          true,
+        Server.SuccessResponsePacket(
           `Successfully uploaded all (${successfulUploads.length}) files!`,
           {
             files: successfulUploads,
@@ -229,9 +228,9 @@ router.post("/upload", async (req: Request, res: Response) => {
         )
       );
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(err);
-    res.status(500).send(Server.ResponsePacket.asJSON(false, err.toString()));
+    res.status(500).send(Server.ErrorResponsePacket(null, `${err}`));
   }
 });
 

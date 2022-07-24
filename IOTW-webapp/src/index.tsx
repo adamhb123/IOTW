@@ -6,7 +6,8 @@ import { OidcProvider } from "@axa-fr/react-oidc";
 // Local modules
 import Config from "./misc/config";
 import Home from "./pages/Home";
-import Submissions from "./pages/Submissions";
+import Uploads from "./pages/Uploads";
+import Profile from "./pages/Profile";
 import NavBar from "./components/NavBar";
 import "bootstrap/dist/css/bootstrap.css";
 import "./index.scss";
@@ -22,7 +23,8 @@ const AppRoutes = () => {
   }, []);
   return (
     <Routes>
-      <Route path="/my-submissions" element={<Submissions userOnly />} />
+      <Route path="/uploads" element={<Uploads userOnly />} />
+      <Route path="/profile" element={<Profile />} />
       <Route path="/" element={<Home />} />
     </Routes>
   );

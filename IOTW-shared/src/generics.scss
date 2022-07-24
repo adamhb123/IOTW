@@ -1,0 +1,14 @@
+@function get-color($map, $prop-descent) {
+    $return: $map;
+    @for $i from 1 through length($prop-descent) {
+      $prop: nth($prop-descent, $i);
+      $return: map-get($return, $prop);
+    }
+    @return $return;
+  }
+
+$colors: (
+  csh: (
+    pdp11: (a: #B0197E, b: #E11C52)
+  ),
+);

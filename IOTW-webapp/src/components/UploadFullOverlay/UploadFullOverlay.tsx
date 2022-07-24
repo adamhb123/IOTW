@@ -1,28 +1,29 @@
 import React from "react";
-import "./SubmissionFullOverlay.scss";
+import IOTWShared from "iotw-shared";
+import "./UploadFullOverlay.scss";
 
-interface SubmissionFullOverlayProps {
+interface UploadFullOverlayProps {
   id?: string;
   className?: string;
   onClick?: React.MouseEventHandler;
   src: string;
 }
-type SubmissionFullOverlayType = React.FunctionComponent<SubmissionFullOverlayProps>;
-export const SubmissionFullOverlay: SubmissionFullOverlayType = (
-  props: SubmissionFullOverlayProps
+type UploadFullOverlayType = React.FunctionComponent<UploadFullOverlayProps>;
+export const UploadFullOverlay: UploadFullOverlayType = (
+  props: UploadFullOverlayProps
 ) => {
   const [visible, setVisible] = React.useState<boolean>(false);
   const [src, setSrc] = React.useState<string>("");
   React.useEffect(() => {
-    const dom = document as any;
-    if (!dom.setSubmissionFullOverlaySrc)
-      dom.setSubmissionFullOverlaySrc = setSrc;
-    if (!dom.setSubmissionFullOverlayVisible)
-      dom.setSubmissionFullOverlayVisible = setVisible;
+    const dom = document as IOTWShared.IOTWDOM;
+    if (!dom.setUploadFullOverlaySrc)
+      dom.setUploadFullOverlaySrc = setSrc;
+    if (!dom.setUploadFullOverlayVisible)
+      dom.setUploadFullOverlayVisible = setVisible;
   }, []);
   React.useEffect(() => {
-    const dom = document as any;
-    dom.submissionFullOverlayVisible = visible;
+    const dom = document as IOTWShared.IOTWDOM;
+    dom.uploadFullOverlayVisible = visible;
     const screenDarkener = dom.getElementById("screen-darkener");
     if (screenDarkener) screenDarkener.style.opacity = visible ? "0.75" : "0";
   }, [visible, src]);
@@ -51,7 +52,7 @@ export const SubmissionFullOverlay: SubmissionFullOverlayType = (
     const top = html.scrollTop || body.scrollTop;
 
     const thisElem = document.getElementsByClassName(
-      "submission-full-overlay"
+      "upload-full-overlay"
     )[0] as HTMLElement;
 
     if (thisElem) thisElem.style.top = `${top}px`;
@@ -63,13 +64,13 @@ export const SubmissionFullOverlay: SubmissionFullOverlayType = (
   return (
     <div
       id={props.id ?? ""}
-      className={`submission-full-overlay ${props.className ?? ""}`}
+      className={`upload-full-overlay ${props.className ?? ""}`}
       style={{ visibility: visible ? "visible" : "hidden" }}
       onClick={toggleVisibility}
     >
-      <img src={src} alt="Submission Full View"></img>
+      <img src={src} alt="Upload Full View"></img>
     </div>
   );
 };
 
-export default SubmissionFullOverlay;
+export default UploadFullOverlay;

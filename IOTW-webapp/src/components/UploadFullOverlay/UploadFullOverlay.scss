@@ -1,10 +1,10 @@
 @use "sass:math";
 
-$submission-full-overlay-img-close-filter: invert(23%) sepia(86%)
+$upload-full-overlay-img-close-filter: invert(23%) sepia(86%)
   saturate(7476%) hue-rotate(359deg) brightness(107%) contrast(124%) opacity(30%);
-$submission-full-overlay-img-width: 80vw;
+$upload-full-overlay-img-width: 80vw;
 
-.submission-full-overlay {
+.upload-full-overlay {
   z-index: 15;
   position: absolute;
   top: 0;
@@ -18,26 +18,26 @@ $submission-full-overlay-img-width: 80vw;
     filter: none;
   }
   to {
-    filter: $submission-full-overlay-img-close-filter;
+    filter: $upload-full-overlay-img-close-filter;
   }
 }
 @keyframes close-img-highlight-unhover {
   from {
-    filter: $submission-full-overlay-img-close-filter;
+    filter: $upload-full-overlay-img-close-filter;
   }
   to {
     filter: none;
   }
 }
 
-.submission-full-overlay img {
+.upload-full-overlay img {
   z-index: 16;
   position: relative;
   top: 50%;
   transform: translateY(-50%);
   display: block;
   margin: auto;
-  width: $submission-full-overlay-img-width;
+  width: $upload-full-overlay-img-width;
   height: auto;
   animation: close-img-highlight-unhover;
   animation-duration: 0.5s;

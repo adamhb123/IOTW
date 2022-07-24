@@ -1,5 +1,3 @@
-$csh-color-a: #b0197e;
-
 $carousel-margin-top: 10px;
 $carousel-background-color: lighten($csh-color-a, 20%);
 $carousel-border: 2px solid $csh-color-a;
@@ -10,7 +8,7 @@ $slick-dots-background-color: darken($carousel-background-color, 20%);
 $slick-dots-border: $carousel-slide-border;
 $slick-dots-border-radius: $carousel-border-radius;
 
-$submission-arrow-offset: -60px;
+$upload-arrow-offset: -60px;
 
 .slick-slider {
   margin-top: $carousel-margin-top;
@@ -34,7 +32,7 @@ $submission-arrow-offset: -60px;
   font-size: 10px;
 }
 
-.submission-arrow {
+.upload-arrow {
   position: absolute;
   top: 45%;
   color: lighten($csh-color-a, 25%);
@@ -51,25 +49,25 @@ $submission-arrow-offset: -60px;
   transition: .1s
 }
 
-.submission-arrow:hover {
+.upload-arrow:hover {
   color: $csh-color-a;
 }
 
-.submission-arrow#previous {
-  left: $submission-arrow-offset;
+.upload-arrow#previous {
+  left: $upload-arrow-offset;
 }
 
-.submission-arrow#next {
-  right: $submission-arrow-offset;
+.upload-arrow#next {
+  right: $upload-arrow-offset;
 }
 
-.submission-arrow#previous span {
+.upload-arrow#previous span {
   position: absolute;
   top: 0;
   left: 27%;
 }
 
-.submission-arrow#next span {
+.upload-arrow#next span {
   position: absolute;
   top: 0;
   left: 33%;

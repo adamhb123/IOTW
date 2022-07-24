@@ -51,52 +51,62 @@ export const MIMETypeFromUrl = (url: string) => {
   return MIMETypes[filetype];
 };
 
-export class ResponsePacket {
-  status: boolean;
-  message: string;
-  data: Record<string, unknown> = {};
-  constructor(
-    status: boolean,
-    message: string,
-    data?: Record<string, unknown>
-  ) {
-    this.status = status;
-    this.message = message;
-    if (data) this.data = data;
-  }
-  static asJSON(
-    status: boolean,
-    message: string,
-    data?: Record<string, unknown>
-  ) {
-    return {
-      status: status,
-      message: message,
-      data: data,
-    };
-  }
-  asJSON() {
-    return {
-      status: this.status,
-      message: this.message,
-      data: this.data,
-    };
-  }
-  static error(message: string, data?: Record<string, unknown>) {
-    return {
-      status: false,
-      message: message,
-      data: data,
-    };
-  }
+type AnyRecord = Record<string, unknown> | Record<string, never>;
+
+interface ResponsePacket {
+  status: string;
+  message: string | null;
+  data: AnyRecord;
 }
+export const ResponsePacket = (
+  status: string,
+  message?: string | null,
+  data?: AnyRecord
+): ResponsePacket => ({
+  status: status,
+  message: message ?? "",
+  data: data ?? {},
+});
+
+export interface SuccessResponsePacket extends ResponsePacket {
+  status: "Success";
+}
+export const SuccessResponsePacket = (
+  message?: string | null,
+  data?: AnyRecord
+): SuccessResponsePacket => ({
+  status: "Success",
+  message: message ?? "",
+  data: data ?? {},
+});
+
+export interface ErrorResponsePacket extends ResponsePacket {
+  status: "Error";
+  code: number | null;
+  message: string | null;
+}
+export const ErrorResponsePacket = (code?: number | null, message?: string | null, data?: AnyRecord): ErrorResponsePacket => ({
+  status: "Error",
+  code: code ?? null,
+  message: message ?? "",
+  data: data ?? {},
+});
+
+export const ConditionalResponsePacket = (
+  successful: boolean,
+  successPacket: SuccessResponsePacket,
+  errorPacket: ErrorResponsePacket
+) => (successful ? successPacket : errorPacket);
 
 export const removeFile = (filePath: string) => {
   return new Promise((resolve, reject) => {
     fs.unlink(filePath, (err) => {
       if (err) reject(err.message);
       resolve(
-        ResponsePacket.asJSON(true, `Successfully removed file: ${filePath}`)
+        SuccessResponsePacket(
+          `Successfully removed file: ${filePath}`,
+          {}
+        )
       );
     });
   });
@@ -154,9 +164,7 @@ export const get = async (url: string, provideSlackAuthorization = true) =>
     method: "get",
     mode: "cors",
     headers: provideSlackAuthorization
-      ? {
-          Authorization: `Bearer ${Config.slackbot.token}`,
-        }
+      ? { Authorization: `Bearer ${Config.slackbot.token}` }
       : {},
   });
 
@@ -184,9 +192,7 @@ export const getFileBase64FromUrl = (
       method: "get",
       mode: "cors",
       headers: provideSlackAuthorization
-        ? {
-            Authorization: `Bearer ${Config.slackbot.token}`,
-          }
+        ? { Authorization: `Bearer ${Config.slackbot.token}` }
         : {},
     })
       .then((res) => {

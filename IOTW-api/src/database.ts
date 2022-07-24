@@ -1,6 +1,15 @@
 import mysql from "mysql2";
 import Config from "./config";
 import IOTWShared from "iotw-shared";
+
+export type dbQueryResult =
+  | mysql.RowDataPacket[]
+  | mysql.RowDataPacket[][]
+  | mysql.OkPacket
+  | mysql.OkPacket[]
+  | mysql.ResultSetHeader
+  | undefined;
+
 const dbConfig = {
   host: Config.mysql.host,
   port: Config.mysql.port,
@@ -12,6 +21,14 @@ const dbConfig = {
 mysql.createConnection(dbConfig);
 const conn = mysql.createPool(dbConfig).promise();
 
+export interface ApiError {
+  code: number;
+  message: string;
+}
+export const ApiError = (errorInfo: ApiError) => errorInfo;
+const isApiError = (x: unknown): x is ApiError =>
+  IOTWShared.typeguardValidator(x, [{ name: "", type: "string" }]);
+
 /**
  * Retrieves and returns all uploads in the database
  *
@@ -19,44 +36,44 @@ const conn = mysql.createPool(dbConfig).promise();
  */
 export async function getUploads(
   maxCount: number | null = null,
-  sortedBy: IOTWShared.Enums.SortedBy = IOTWShared.Enums.SortedBy.Updoots,
-  direction: IOTWShared.Enums.Direction = IOTWShared.Enums.Direction.Descending
-): Promise<any> {
+  sortedBy: IOTWShared.UploadColumnID = IOTWShared.UploadColumnID.Updoots,
+  direction: IOTWShared.Direction = IOTWShared.Direction.Descending
+): Promise<dbQueryResult> {
   // could replace 'uploads' with a 'TABLE_NAME' envvar
-  let result;
-  const sqlDirection = IOTWShared.Methods.directionEnumToSQL(direction);
+  let result: dbQueryResult;
+  const sqlDirection = IOTWShared.directionEnumToSQL(direction);
   await conn
     .query(
       `SELECT * FROM uploads ORDER BY ${sortedBy} ${sqlDirection} ${
         maxCount ? `LIMIT ${maxCount}` : ""
       }`
     )
-    .then(([_rows]: any) => {
+    .then(([_rows]) => {
       result = _rows;
     })
-    .catch((err: any) => (result = err));
+    .catch((err) => (result = err));
   return result;
 }
 
 export async function getUploadsByColumnValue(
-  column_id: string,
-  column_value: string,
+  uploadColumnID: string,
+  uploadColumnValue: string,
   maxCount: number | null = null,
-  sortedBy: IOTWShared.Enums.SortedBy = IOTWShared.Enums.SortedBy.Updoots,
-  direction: IOTWShared.Enums.Direction = IOTWShared.Enums.Direction.Descending
-): Promise<any> {
-  let result: any;
-  const sqlDirection = IOTWShared.Methods.directionEnumToSQL(direction);
+  sortedBy: IOTWShared.UploadColumnID = IOTWShared.UploadColumnID.Updoots,
+  direction: IOTWShared.Direction = IOTWShared.Direction.Descending
+): Promise<dbQueryResult> {
+  let result: dbQueryResult;
+  const sqlDirection = IOTWShared.directionEnumToSQL(direction);
   await conn
     .query(
-      `SELECT * FROM uploads WHERE ${column_id}=${column_value} ORDER BY ${sortedBy} ${sqlDirection} ${
+      `SELECT * FROM uploads WHERE ${uploadColumnID}=${uploadColumnValue} ORDER BY ${sortedBy} ${sqlDirection} ${
         maxCount ? `LIMIT ${maxCount}` : ""
       }`
     )
-    .then(([_rows]: any) => {
+    .then(([_rows]) => {
       result = _rows;
     })
-    .catch((err: any) => (result = err));
+    .catch((err) => (result = err));
   return result;
 }
 

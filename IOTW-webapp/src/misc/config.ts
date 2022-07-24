@@ -1,36 +1,22 @@
-import {
-  stringToPrimitive,
-  PrimitiveTypeString,
-} from "../../../IOTW-shared/src/utility";
-
-const _parseEnvVar = (failureDefault: any, ...envVarNames: string[]) => {
-  const desiredPrimitive = typeof failureDefault as PrimitiveTypeString;
-  for (const envVarName of envVarNames) {
-    const envVar = process.env[envVarName];
-    if (typeof envVar !== "undefined") {
-      return stringToPrimitive(envVar, desiredPrimitive);
-    }
-  }
-  return failureDefault;
-};
+import IOTWShared from "iotw-shared";
 
 /* SSO */
-const _CLIENT_ID = _parseEnvVar(
+const _CLIENT_ID = IOTWShared.parseEnvVar(
   "react-boilerplate",
   "REACT_APP_SSO_CLIENT_ID_OKD",
   "REACT_APP_SSO_CLIENT_ID"
 );
-const _CLIENT_SECRET = _parseEnvVar(
+const _CLIENT_SECRET = IOTWShared.parseEnvVar(
   "",
   "REACT_APP_SSO_CLIENT_SECRET_OKD",
   "REACT_APP_SSO_CLIENT_SECRET"
 );
-const _POST_LOGOUT_REDIRECT_URI = _parseEnvVar(
+const _POST_LOGOUT_REDIRECT_URI = IOTWShared.parseEnvVar(
   "http://localhost:3000/",
   "REACT_APP_SITE_URL_OKD",
   "REACT_APP_SITE_URL"
 );
-const _AUTHORITY = _parseEnvVar(
+const _AUTHORITY = IOTWShared.parseEnvVar(
   "https://sso.csh.rit.edu/auth/realms/csh",
   "REACT_APP_SSO_AUTHORITY_OKD",
   "REACT_APP_SSO_AUTHORITY"
@@ -39,17 +25,17 @@ const _AUTHORITY = _parseEnvVar(
 export const Config = {
   webapp: {},
   api: {
-    host: _parseEnvVar(
+    host: IOTWShared.parseEnvVar(
       "localhost",
       "REACT_APP_IOTW_API_HOST_OKD",
       "REACT_APP_IOTW_API_HOST"
     ),
-    port: _parseEnvVar(
+    port: IOTWShared.parseEnvVar(
       "3001",
       "REACT_APP_IOTW_API_PORT_OKD",
       "REACT_APP_IOTW_API_PORT"
     ),
-    storeSubmissionsLocally: _parseEnvVar(
+    storeUploadsLocally: IOTWShared.parseEnvVar(
       true,
       "REACT_APP_IOTW_API_STORE_SUBMISSIONS_LOCALLY_OKD",
       "REACT_APP_IOTW_API_STORE_SUBMISSIONS_LOCALLY"
