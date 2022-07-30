@@ -4,7 +4,7 @@ import Logger from "easylogger-ts";
 import APIMiddleware from "../../misc/APIMiddleware";
 import "./UploadCard.scss";
 import Config from "../../misc/config";
-import DootDifferenceDisplay from "../DootDifferenceDisplay";
+import UploadDataDisplay from "../UploadDataDisplay";
 type UploadCardPropTypes = {
   id?: string;
   author: string;
@@ -56,7 +56,7 @@ const UploadCard = (props: UploadCardPropTypes) => {
           Author: <span className="author-name-text">{props.author}</span>
         </CardTitle>
         <CardText>{props.children}</CardText>
-        <DootDifferenceDisplay dootDifference={props.dootDifference} />
+        <UploadDataDisplay dootDifference={props.dootDifference} />
       </CardBody>
     </Card>
   );

@@ -10,7 +10,8 @@ import APIMiddleware from "../../misc/APIMiddleware";
 import IOTWShared from "iotw-shared";
 import Config from "../../misc/config";
 import UploadFullOverlay from "../UploadFullOverlay";
-import DootDifferenceDisplay from "../DootDifferenceDisplay";
+import UploadDataDisplay from "../UploadDataDisplay";
+import UploadArrow from "../UploadArrow";
 
 // export class UploadCarouselItem {
 //   src: string;
@@ -137,27 +138,6 @@ import DootDifferenceDisplay from "../DootDifferenceDisplay";
 //   }
 // }
 
-interface UploadArrowProps {
-  direction: "previous" | "next";
-  onClick?: React.EventHandler<any>;
-}
-type UploadArrowType = React.FunctionComponent<UploadArrowProps>;
-const UploadArrow: UploadArrowType = (
-  props: UploadArrowProps
-): React.ReactElement<any, any> => {
-  return (
-    <button
-      className={`upload-arrow`}
-      id={props.direction}
-      onClick={(evt) => {
-        if (props.onClick) props.onClick(evt);
-      }}
-    >
-      <span>{props.direction === "previous" ? "<" : ">"}</span>
-    </button>
-  );
-};
-
 interface UploadSlideProps {
   id: string; // ID and key will be the same value
   src: string;
@@ -168,11 +148,16 @@ interface UploadSlideProps {
 export const UploadSlide: React.FunctionComponent<UploadSlideProps> = (
   props: UploadSlideProps
 ) => {
-  const toggleShowFullOverlayOnClick = React.useCallback(() => {
-    const dom = document as IOTWShared.IOTWDOM;
+  const showFullOverlayOnClick = React.useCallback(() => {
+    // Is this usage of dom philosophically consistent and acceptable?
+    // I don't know...but it works so I don't care
+    const dom = document as IOTWShared.UploadDisplayDOM;
     if (!dom.userDragging) {
-      if (dom.setUploadFullOverlaySrc) props.src;
-      if (dom.setUploadFullOverlayVisible) !dom.uploadFullOverlayVisible;
+      if (dom.setUploadFullOverlaySrc) dom.setUploadFullOverlaySrc(props.src);
+      if (dom.setUploadFullOverlayDootDifference)
+        dom.setUploadFullOverlayDootDifference(props.dootDifference);
+      if (dom.setUploadFullOverlayVisible)
+        dom.setUploadFullOverlayVisible(true);
     }
     // Reset userDragging
     dom.userDragging = false;
@@ -180,11 +165,21 @@ export const UploadSlide: React.FunctionComponent<UploadSlideProps> = (
 
   const dragThreshold = 25;
   let dragInterval: NodeJS.Timeout | null = null;
+  const restrictClicksTimer = 1000;
+  const dom = document as IOTWShared.UploadDisplayDOM;
+  dom.restrictClicks = false;
   IOTWShared.addEventListeners(["mouseup", "touchend"], () => {
+    setTimeout(() => (dom.restrictClicks = false), restrictClicksTimer);
     if (dragInterval) clearInterval(dragInterval);
   });
   IOTWShared.addEventListeners(["mousedown", "touchstart"], (evt: Event) => {
-    const dom = document as IOTWShared.IOTWDOM;
+    if (dom.restrictClicks) {
+      evt.stopPropagation();
+      evt.preventDefault();
+    } else dom.restrictClicks = true;
+  });
+  IOTWShared.addEventListeners(["mousedown", "touchstart"], (evt: Event) => {
+    const dom = document as IOTWShared.UploadDisplayDOM;
     const initialMousePos = IOTWShared.mousePositionFromEvent(evt);
     if (!initialMousePos) return;
     if (dragInterval) clearInterval(dragInterval);
@@ -208,14 +203,9 @@ export const UploadSlide: React.FunctionComponent<UploadSlideProps> = (
     // User interaction fixes
   }, [props.id, slideCheck]);
   return (
-    <div className="slide" key={props.id}>
-      <DootDifferenceDisplay dootDifference={props.dootDifference} />
-      <img
-        id={props.id}
-        src={props.src}
-        alt="Upload"
-        onClick={toggleShowFullOverlayOnClick}
-      />
+    <div className="slide" onClick={showFullOverlayOnClick}>
+      <UploadDataDisplay dootDifference={props.dootDifference} />
+      <img id={props.id} src={props.src} alt="Upload" />
     </div>
   );
 };
@@ -233,7 +223,7 @@ export const UploadCarousel: React.FunctionComponent<UploadCarouselProps> = (
 ) => {
   // Mouse position updates
   const updateCurrentMousePosition: EventListener = (evt: Event) => {
-    const dom = document as IOTWShared.IOTWDOM;
+    const dom = document as IOTWShared.UploadDisplayDOM;
     const mousePosition = IOTWShared.mousePositionFromEvent(evt);
     if (mousePosition) {
       dom.currentMousePosition = mousePosition;
@@ -273,8 +263,6 @@ export const UploadCarousel: React.FunctionComponent<UploadCarouselProps> = (
       console.log(uploadObjs);
       for (const upload of uploadObjs) {
         let imageSrc: string;
-        console.error("err: " + Config.api.storeUploadsLocally);
-        console.error(upload);
         if (Config.api.storeUploadsLocally) {
           if (!upload.apiPublicFileUrl) {
             const errStr = `UploadCardCarousel: props.apiPublicFileUrl required \
@@ -306,10 +294,11 @@ export const UploadCarousel: React.FunctionComponent<UploadCarouselProps> = (
             );
           }
         }
-        console.error(`slide-${count}`);
+        const id = `slide-${count++}`;
         uploadSlides.push(
           <UploadSlide
-            id={`slide-${count++}`}
+            id={id}
+            key={id}
             src={imageSrc}
             dootDifference={upload.updoots - upload.downdoots}
           />
@@ -325,8 +314,8 @@ export const UploadCarousel: React.FunctionComponent<UploadCarouselProps> = (
     arrows: true,
     accessibility: true, // Doesn't work i guess
     dots: true,
-    prevArrow: <UploadArrow direction="previous" />,
-    nextArrow: <UploadArrow direction="next" />,
+    prevArrow: <UploadArrow target="upload-carousel" direction="previous" />,
+    nextArrow: <UploadArrow target="upload-carousel" direction="next" />,
     infinite: true,
     speed: 500,
     slide: ".slide",

@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "start": "npm run build",
-    "build": "tsc && cp ./src/generics.scss ./dist/",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Adam Brewer",

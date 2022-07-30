@@ -1,9 +1,12 @@
 import React from "react";
-export interface IOTWDOM extends Document {
+export interface UploadDisplayDOM extends Document {
     userDragging?: boolean;
+    restrictClicks?: boolean;
     uploadFullOverlayVisible?: boolean;
+    uploadFullOverlayDootDifference?: number;
     setUploadFullOverlaySrc?: React.Dispatch<React.SetStateAction<string>>;
     setUploadFullOverlayVisible?: React.Dispatch<React.SetStateAction<boolean>>;
+    setUploadFullOverlayDootDifference?: React.Dispatch<React.SetStateAction<number>>;
     uploadFetch?: (sortedBy?: UploadColumnID, direction?: Direction) => Promise<void>;
     currentMousePosition?: [number, number];
 }

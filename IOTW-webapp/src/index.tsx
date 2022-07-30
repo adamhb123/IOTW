@@ -23,7 +23,8 @@ const AppRoutes = () => {
   }, []);
   return (
     <Routes>
-      <Route path="/uploads" element={<Uploads userOnly />} />
+      <Route path="/uploads" element={<Uploads/>} />
+      <Route path="/my-uploads" element={<Uploads userOnly />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/" element={<Home />} />
     </Routes>

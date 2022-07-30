@@ -1,7 +1,4 @@
-$upload-card-background-color: white;
-$upload-card-border: 1px solid gray;
-$upload-card-img-border: 1px solid gray;
-$csh-color-b: #e11c52; 
+@import "../../variables.scss";
 
 .upload-card.card {
   display: inline-block;
@@ -12,7 +9,7 @@ $csh-color-b: #e11c52;
   cursor: pointer;
 }
 
-#upload-card-body .doot-difference-display {
+#upload-card-body .upload-data-display {
   position: relative;
   font-size: 1rem;
   width: 100%;
@@ -37,5 +34,5 @@ $csh-color-b: #e11c52;
 
 .upload-card .author-name-text{
   font-weight: bold;
-  color: $csh-color-b;
+  color: $csh-pdp11-b;
 }

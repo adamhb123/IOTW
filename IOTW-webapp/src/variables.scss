@@ -1,0 +1,53 @@
+$csh-pdp11-a: #b0197e;
+$csh-pdp11-b: #e11c52;
+/** 
+ * Site-wide
+ */
+$page-background-color: lighten(beige, 2%);
+
+/**
+ * Upload Card 
+ */
+$upload-card-background-color: white;
+$upload-card-border: 1px solid gray;
+$upload-card-img-border: 1px solid gray;
+
+/**
+ * Upload Carousel
+ */
+$carousel-margin-top: 10px;
+$carousel-background-color: lighten($csh-pdp11-a, 20%);
+$carousel-border: 2px solid $csh-pdp11-a;
+$carousel-border-radius: 5px;
+$carousel-button-active-color: white;
+$carousel-slide-border: 1px solid black;
+$slick-dots-background-color: darken($carousel-background-color, 20%);
+$slick-dots-border-radius: 0px 0px 5px 5px;
+$slick-slide-border-radius: 5px 5px 0px 0px;
+$upload-carousel-upload-arrow-offset: -60px;
+
+/**
+ * Upload Full Overlay
+ */
+$upload-full-overlay-img-close-filter: invert(23%) sepia(86%)
+  saturate(7476%) hue-rotate(359deg) brightness(107%) contrast(124%) opacity(30%);
+$upload-full-overlay-img-width: 80vw;
+$upload-full-overlay-upload-arrow-offset: 0px;
+
+/**
+ * Upload Gallery
+ */
+$uploads-container-width: 80vw;
+
+/**
+ * Navbar
+ */
+$navbar-container-max-width: 80%;
+$navbar-gradient-color-from: rgb(124, 0, 124);
+$navbar-gradient-color-to: rgb(0, 143, 0);
+$navbar-gradient-midpoint-pctg: 82%;
+$navbar-gradient-transition-buffer: 1%;
+$navbar-padding: 10px;
+$navbar-brand-image: "https://static.remove.bg/remove-bg-web/588fbfdd2324490a4329d4ad22d1bd436e1d384a/assets/start-1abfb4fe2980eabfbbaaa4365a0692539f7cd2725f324f904565a9a744f8e214.jpg";
+$navbar-box-shadow: 0px 1px 2px rgb(0, 0, 0, 80%);
+$nav-item-border-bottom-on-hover: 2px black;

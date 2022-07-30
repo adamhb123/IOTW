@@ -1,0 +1,51 @@
+@import "../../variables.scss";
+
+.upload-arrow {
+  position: absolute;
+  top: 45%;
+  color: lighten($csh-pdp11-a, 25%);
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 100%;
+  font-size: 2.4rem;
+  font-family: monospace, monospace;
+  font-weight: bold;
+  line-height: 1.44;
+  background-color: transparent;
+  transition: 0.1s;
+  filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.5));
+}
+
+.upload-arrow:hover {
+  color: $csh-pdp11-a;
+}
+
+.upload-carousel-upload-arrow#previous {
+  left: $upload-carousel-upload-arrow-offset;
+}
+
+.upload-carousel-upload-arrow#next {
+  right: $upload-carousel-upload-arrow-offset;
+}
+
+.upload-full-overlay-upload-arrow#previous {
+  left: $upload-full-overlay-upload-arrow-offset;
+}
+
+.upload-full-overlay-upload-arrow#next {
+  right: $upload-full-overlay-upload-arrow-offset;
+}
+
+.upload-arrow#previous span {
+  position: absolute;
+  top: 0;
+  left: 27%;
+}
+
+.upload-arrow#next span {
+  position: absolute;
+  top: 0;
+  left: 33%;
+}

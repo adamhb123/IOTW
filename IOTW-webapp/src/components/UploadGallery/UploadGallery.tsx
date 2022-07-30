@@ -26,9 +26,10 @@ const UploadFetchFailure = () => <></>;
 const Items = (props: {
   currentItems: IOTWShared.UploadsResponseStructure[];
 }) => {
-  const toggleShowFullOverlayOnClick = (src: string) => {
-    const dom = document as IOTWShared.IOTWDOM;
+  const showFullOverlayOnClick = (src: string, dootDifference: number) => {
+    const dom = document as IOTWShared.UploadDisplayDOM;
     if (dom.setUploadFullOverlaySrc) dom.setUploadFullOverlaySrc(src);
+    if (dom.setUploadFullOverlayDootDifference) dom.setUploadFullOverlayDootDifference(dootDifference);
     if (dom.setUploadFullOverlayVisible)
       dom.setUploadFullOverlayVisible(!dom.uploadFullOverlayVisible);
   };
@@ -50,7 +51,7 @@ const Items = (props: {
               thumbnailMimetype={item.thumbnailMimetype}
               apiPublicFileUrl={item.apiPublicFileUrl}
               dootDifference={item.dootDifference}
-              onClick={toggleShowFullOverlayOnClick.bind(null, fullOverlaySrc)}
+              onClick={showFullOverlayOnClick.bind(null, fullOverlaySrc, item.dootDifference)}
             >
               Test f
             </UploadCard>
@@ -111,7 +112,7 @@ const PaginatedItems: PaginatedItemType = (props: PaginatedItemProps) => {
         }
         setTimeout(uploadFetch, SUBFETCH_INTERVAL_MS);
       });
-    const dom = document as IOTWShared.IOTWDOM;
+    const dom = document as IOTWShared.UploadDisplayDOM;
     if (!Object.prototype.hasOwnProperty.call(dom, "uploadFetch"))
       dom.uploadFetch = uploadFetch;
     uploadFetch();
@@ -186,7 +187,7 @@ const SortDropdowns = () => {
   >(null);
   React.useEffect(() => {
     (async () => {
-      const dom = document as IOTWShared.IOTWDOM;
+      const dom = document as IOTWShared.UploadDisplayDOM;
       if (Object.prototype.hasOwnProperty.call(dom, "uploadFetch")) {
         console.log("TEST");
         if (dom.uploadFetch)
@@ -229,7 +230,7 @@ const SortDropdowns = () => {
   );
 };
 
-type UploadGalleryProps = { userOnly: boolean; title: string };
+type UploadGalleryProps = { userOnly?: boolean; title: string };
 
 const UploadGallery: React.FunctionComponent<UploadGalleryProps> = (
   props: UploadGalleryProps

@@ -1,8 +1,10 @@
 @use "sass:math";
+@import "../../variables.scss";
 
-$upload-full-overlay-img-close-filter: invert(23%) sepia(86%)
-  saturate(7476%) hue-rotate(359deg) brightness(107%) contrast(124%) opacity(30%);
-$upload-full-overlay-img-width: 80vw;
+.upload-full-overlay img {
+  z-index: 16;
+  cursor: pointer;
+}
 
 .upload-full-overlay {
   z-index: 15;
@@ -42,11 +44,27 @@ $upload-full-overlay-img-width: 80vw;
   animation: close-img-highlight-unhover;
   animation-duration: 0.5s;
   animation-fill-mode: forwards;
-  pointer-events: none;
 }
 
 .close-image-hover-animation {
   animation: close-img-highlight-hover;
   animation-duration: 0.5s;
   animation-fill-mode: forwards;
+}
+
+.upload-full-overlay > .upload-data-display {
+  z-index: 10;
+  width: auto;
+  text-align: center;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 2px;
+  position: absolute;
+  font-size: 2rem;
+  padding-right: 5px;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);
+}
+
+.upload-full-overlay > .upload-data-display > .upload-data-text {
+  margin: 6px;
 }

@@ -1,15 +1,16 @@
-$page-background-color:lighten(#f5f5dc, 5%);
-html, body {
+@import "./variables.scss";
+
+html,
+body {
   background-color: $page-background-color;
-  overflow-x: hidden;
+  overflow: hidden;
+  height: 100%;
 }
 
 body {
-  height: 100%;
-  overflow: hidden;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -23,6 +24,8 @@ img {
 }
 
 #root {
+  height: 100%;
+  width: 100%;
   padding-bottom: 15px;
 }
 
@@ -35,10 +38,9 @@ img {
   background-color: black;
   opacity: 0;
   z-index: 15;
-  pointer-events: none;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }

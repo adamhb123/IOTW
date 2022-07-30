@@ -1,5 +1,8 @@
+import React from "react";
 import { Container } from "reactstrap";
-import { useOidcUser } from "@axa-fr/react-oidc";
+import { OidcUserStatus, useOidcUser } from "@axa-fr/react-oidc";
+
+import AuthVerifier from "../../components/AuthVerifier";
 import "./Profile.scss";
 // interface ProfileStandardClaims {
 //   /** End-User's full name */
@@ -43,7 +46,7 @@ import "./Profile.scss";
 // }
 
 const Profile = () => {
-  const { oidcUser, oidcUserLoadingState } = useOidcUser();
+  const { oidcUser } = useOidcUser();
   const userData = {
     cshUsername: oidcUser?.preferred_username,
     fullname: oidcUser?.name,
@@ -53,25 +56,27 @@ const Profile = () => {
     email: oidcUser?.email,
   };
   return (
-    <Container id="profile-container">
-      <div id="user-information-container">
-        <img
-          id="user-avatar"
-          className="rounded-circle"
-          src={userData.avatarUrl}
-          alt="user avatar"
-          aria-hidden={true}
-        />
-        <div id="user-information">
-          <span id="user-csh-username">User: {userData.cshUsername}</span>
-          <hr className="my-1"/>
-          <span id="user-fullname">Full name: {userData.fullname}</span>
-          <span id="user-email">
-            Email: <a href={`mailto:${userData.email}`}>{userData.email}</a>
-          </span>
+    <AuthVerifier>
+      <Container id="profile-container">
+        <div id="user-information-container">
+          <img
+            id="user-avatar"
+            className="rounded-circle"
+            src={userData.avatarUrl}
+            alt="user avatar"
+            aria-hidden={true}
+          />
+          <div id="user-information">
+            <span id="user-csh-username">User: {userData.cshUsername}</span>
+            <hr className="my-1" />
+            <span id="user-fullname">Full name: {userData.fullname}</span>
+            <span id="user-email">
+              Email: <a href={`mailto:${userData.email}`}>{userData.email}</a>
+            </span>
+          </div>
         </div>
-      </div>
-    </Container>
+      </Container>
+    </AuthVerifier>
   );
 };
 

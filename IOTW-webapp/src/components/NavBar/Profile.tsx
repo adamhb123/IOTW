@@ -32,7 +32,7 @@ export const Profile: React.FunctionComponent = () => {
   }`;
   const profileDropdown = isAuthenticated ? (
     <>
-      <DropdownItem onClick={() => (window.location.href = "/profile")}>
+      <DropdownItem onClick={() => (window.location.assign("/profile"))}>
         Your Uploads
       </DropdownItem>
       <DropdownItem>Settings</DropdownItem>

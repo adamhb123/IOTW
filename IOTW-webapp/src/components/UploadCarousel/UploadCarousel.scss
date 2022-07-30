@@ -1,14 +1,4 @@
-$carousel-margin-top: 10px;
-$carousel-background-color: lighten($csh-color-a, 20%);
-$carousel-border: 2px solid $csh-color-a;
-$carousel-border-radius: 5px;
-$carousel-button-active-color: white;
-$carousel-slide-border: 1px solid black;
-$slick-dots-background-color: darken($carousel-background-color, 20%);
-$slick-dots-border: $carousel-slide-border;
-$slick-dots-border-radius: $carousel-border-radius;
-
-$upload-arrow-offset: -60px;
+@import "../../variables.scss";
 
 .slick-slider {
   margin-top: $carousel-margin-top;
@@ -16,6 +6,7 @@ $upload-arrow-offset: -60px;
   border-radius: $carousel-border-radius;
   background-color: $carousel-background-color;
   padding: 10px;
+  box-shadow: 0px 0px 4px black;
 }
 
 .slick-dots {
@@ -24,53 +15,12 @@ $upload-arrow-offset: -60px;
   top: 0;
   left: 0;
   background-color: $slick-dots-background-color;
-  border: $slick-dots-border;
   border-radius: $slick-dots-border-radius;
+  box-shadow: 0px 1px 6px rgb(0 0 0);
 }
 
 .slick-dots li button:before {
   font-size: 10px;
-}
-
-.upload-arrow {
-  position: absolute;
-  top: 45%;
-  color: lighten($csh-color-a, 25%);
-  font-size: 2rem;
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 100%;
-  font-size: 2.4rem;
-  font-family: monospace, monospace;
-  font-weight: bold;
-  line-height: 1.44;
-  background-color: transparent;
-  transition: .1s
-}
-
-.upload-arrow:hover {
-  color: $csh-color-a;
-}
-
-.upload-arrow#previous {
-  left: $upload-arrow-offset;
-}
-
-.upload-arrow#next {
-  right: $upload-arrow-offset;
-}
-
-.upload-arrow#previous span {
-  position: absolute;
-  top: 0;
-  left: 27%;
-}
-
-.upload-arrow#next span {
-  position: absolute;
-  top: 0;
-  left: 33%;
 }
 
 .slick-active > button:before {
@@ -79,22 +29,22 @@ $upload-arrow-offset: -60px;
 }
 
 .slide {
+  cursor: pointer;
   position: relative;
   background-color: black;
   border: $carousel-slide-border;
-  border-radius: $carousel-border-radius;
+  border-radius: $slick-slide-border-radius;
   height: 70vh;
 }
 
 .slide > img {
-  cursor: pointer;
   display: block;
   margin: auto;
   height: 100%;
   transition: 0.3s;
 }
 
-.slide > .doot-difference-display {
+.slide > .upload-data-display {
   z-index: 10;
   width: auto;
   text-align: center;
@@ -104,13 +54,13 @@ $upload-arrow-offset: -60px;
   position: absolute;
   font-size: 2rem;
   padding-right: 5px;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);
 }
 
-.slide > .doot-difference-display > .doot-difference-text {
+.slide > .upload-data-display > .upload-data-text {
   margin: 6px;
 }
 
 .bidi-arrow {
   all: unset;
-  filter: drop-shadow(0px 0px 0px black);
 }

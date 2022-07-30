@@ -104,7 +104,8 @@ for (const processDescriptor of processDescriptors) {
 }
 
 let exitCount = 0;
-setInterval(() => {
+
+const queueSweep = () => {
   STDQueue = STDQueue.sort((a, b) =>
     a.processDescriptorName > b.processDescriptorName ? 1 : -1
   );
@@ -120,4 +121,7 @@ setInterval(() => {
         console.error(stdItem.data);
     }
   }
-}, 1000);
+  setTimeout(queueSweep, 1000);
+}
+
+setTimeout(queueSweep, 1000);
